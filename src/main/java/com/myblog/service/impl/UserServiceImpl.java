@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService {
-
+    @Autowired
+    private UserService self;
     @Autowired
     private UserDao userDao;
 
@@ -37,7 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
 
     @Override
     public String login(String email, String password) {
-        User user = getUserByEmail(email);
+        User user = self.getUserByEmail(email);
         if (user != null && Objects.equals(user.getStatus(), UserStatus.NORMAL) && user.getUserPassword().equals(password)) {
             String token = tokenUtil.generateToken(user.getUserId(), user.getUserRole());
             // 将token存储到Redis，设置过期时间
@@ -49,7 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
 
     @Override
     public Integer register(User user) {
-        User existingUser = getUserByEmail(user.getEmail());
+        User existingUser = self.getUserByEmail(user.getEmail());
         if (existingUser == null || !Objects.equals(existingUser.getStatus(), UserStatus.NORMAL)) {
             user.setUserRegisterTime(LocalDateTime.now());
             user.setStatus(UserStatus.PENDING); // 设置为待审核状态
