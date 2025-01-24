@@ -1,7 +1,6 @@
 package com.myblog.interceptor;
 
 import com.myblog.annotation.RequirePermission;
-import com.myblog.service.PermissionService;
 import com.myblog.utility.TokenUtil;
 import com.myblog.utility.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PermissionInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private PermissionService permissionService;
     @Autowired
     private TokenUtil tokenUtil;
     @Autowired

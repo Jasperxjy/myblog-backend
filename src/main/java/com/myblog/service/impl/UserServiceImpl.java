@@ -8,6 +8,7 @@ import com.myblog.service.UserService;
 import com.myblog.utility.TokenUtil;
 import com.myblog.utility.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    @Cacheable(value = "user",key = "#email")
     @Override
     public User getUserByEmail(String email) {
         return userDao.selectOne(new QueryWrapper<User>().eq("email", email));

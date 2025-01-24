@@ -6,6 +6,8 @@ import com.myblog.dto.EssayBriefDTO;
 import com.myblog.dto.Result;
 import com.myblog.entity.Essay;
 import com.myblog.service.EssayService;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,7 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
     public Result updateEssayWithLock(String id, Essay essay, String userId) {
         return null;
     }
-
+    @Cacheable(value = "essaysBrief")
     @Override
     public List<EssayBriefDTO> listAllEssayBriefs() {
         return this.list().stream()
@@ -44,6 +46,7 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
                 .collect(Collectors.toList());
     }
 
+    @CachePut(value = "essays", key = "#essayId")
     @Override
     @Transactional
     public Result incrementLikeCount(String essayId) {
