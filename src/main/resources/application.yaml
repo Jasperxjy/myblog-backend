@@ -1,0 +1,43 @@
+server:
+  port: 8082
+jwt:
+  secret: qwer12345
+  expiration: 3600
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.108.171.144:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true
+    username: root
+    password: bl.264979
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      write-date-keys-as-timestamps: false
+  web:
+    resources:
+      static-locations: classpath:static/,file:static/
+  data:
+    redis:
+      host: 47.108.171.144
+      password: "264979"
+      port: 6379
+      timeout: 2000ms
+mybatis-plus:
+  type-aliases-package: com.myblog.entity
+  configuration:
+    call-setters-on-nulls: false
+    map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
+
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  global-config:
+    field-strategy: 0
+    banner: true
+    db-config:
+      id-type: uuid
+      logic-not-delete-value: 1
+      logic-delete-value: 0
+logging:
+  level:
+    root: info

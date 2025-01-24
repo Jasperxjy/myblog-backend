@@ -1,0 +1,176 @@
+package com.myblog.controller;
+
+import com.myblog.annotation.RequirePermission;
+import com.myblog.dto.EssayBriefDTO;
+import com.myblog.dto.Result;
+import com.myblog.entity.Essay;
+import com.myblog.service.EssayService;
+import com.myblog.service.LockService;
+import com.myblog.utility.UserRole;
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * (Essay)文章表控制层
+ *
+ * @author makejava
+ * @since 2024-12-28 18:29:24
+ */
+@RestController
+@RequestMapping("/essay")
+public class EssayController {
+
+    @Resource
+    private EssayService essayService;
+    @Resource
+    private LockService lockService;
+    /**
+     * 创建新文章
+     *
+     * @param essay 要创建的文章对象
+     * @return 包含创建成功的文章信息的Result对象
+     */
+    @RequirePermission(UserRole.ADMIN)
+    @PostMapping
+    public Result createEssay(@RequestBody Essay essay) {
+        essay.setEssayAddTime(LocalDateTime.now())
+                .setEssayLastChangeTime(LocalDateTime.now())
+                .setEssayLikeNum(0)
+                .setEssayViewNum(0)
+                .setEssayCollectionNum(0)
+                .setVersion(1)
+                .setStatus(1);
+        boolean savedEssay = essayService.save(essay);
+        return Result.ok(savedEssay);
+    }
+    /**
+     * 根据ID获取文章
+     *
+     * @param id 文章ID
+     * @return 包含查询到的文章信息的Result对象，如果文章不存在则返回失败信息
+     */
+    @RequirePermission(UserRole.GUEST)
+    @GetMapping("/{id}")
+    public Result getEssay(@PathVariable String id) {
+        Essay essay = essayService.getById(id);
+        if (essay != null) {
+            return Result.ok(essay);
+        } else {
+            return Result.fail("文章不存在");
+        }
+    }
+    /**
+     * 获取所有文章
+     *
+     * @return 包含所有文章列表的Result对象
+     */
+    @RequirePermission(UserRole.GUEST)
+    @GetMapping
+    public Result getAllEssays() {
+        List<EssayBriefDTO> essayBriefs = essayService.listAllEssayBriefs();
+        return Result.ok(essayBriefs);
+    }
+    /**
+     * 更新指定ID的文章
+     *
+     * @param id 要更新的文章ID
+     * @param essay 包含更新信息的文章对象
+     * @return 包含更新后的文章信息的Result对象，如果文章不存在则返回失败信息
+     */
+    @RequirePermission(UserRole.ADMIN)
+    @PutMapping("/{id}")
+    public Result updateEssay(@PathVariable String id, @RequestBody Essay essay) {
+        Essay existingEssay = essayService.getById(id);
+        if (existingEssay != null) {
+            essay.setEssayId(id)
+                    .setEssayLastChangeTime(LocalDateTime.now())
+                    .setVersion(existingEssay.getVersion() + 1);
+            boolean updatedEssay = essayService.updateById(essay);
+            return Result.ok(updatedEssay);
+        } else {
+            return Result.fail("文章不存在");
+        }
+    }
+    /**
+     * 删除指定ID的文章
+     *
+     * @param id 要删除的文章ID
+     * @return 包含操作结果的Result对象，如果删除成功返回成功信息，否则返回失败信息
+     */
+    @RequirePermission(UserRole.ADMIN)
+    @DeleteMapping("/{id}")
+    public Result deleteEssay(@PathVariable String id) {
+        boolean removed = essayService.removeById(id);
+        if (removed) {
+            return Result.ok();
+        } else {
+            return Result.fail("文章不存在或删除失败");
+        }
+    }
+
+    /**
+     * 开始编辑文章
+     *
+     * @param id 文章ID
+     * @param userId 用户ID
+     * @return 包含锁定信息的Result对象
+     */
+    @RequirePermission(UserRole.ADMIN)
+    @PostMapping("/{id}/edit")
+    public Result startEditEssay(@PathVariable String id, @RequestParam String userId) {
+        return lockService.lockEssay(id, userId);
+    }
+
+    /**
+     * 获取文章的最新版本（考虑锁定状态）
+     *
+     * @param id 文章ID
+     * @return 包含文章信息的Result对象
+     */
+    @RequirePermission(UserRole.GUEST)
+    @GetMapping("/{id}")
+    public Result getLatestEssay(@PathVariable String id) {
+        return essayService.getEssayWithLockCheck(id);
+    }
+
+    /**
+     * 更新指定ID的文章
+     *
+     * @param id 要更新的文章ID
+     * @param essay 包含更新信息的文章对象
+     * @param userId 用户ID
+     * @return 包含更新后的文章信息的Result对象
+     */
+    @RequirePermission(UserRole.ADMIN)
+    @PutMapping("/{id}")
+    public Result updateEssay(@PathVariable String id, @RequestBody Essay essay, @RequestParam String userId) {
+        return essayService.updateEssayWithLock(id, essay, userId);
+    }
+
+    /**
+     * 为文章点赞
+     *
+     * @param id 文章ID
+     * @return 包含更新后点赞数的Result对象
+     */
+    @RequirePermission(UserRole.GUEST)
+    @PostMapping("/{id}/like")
+    public Result likeEssay(@PathVariable String id) {
+        return essayService.incrementLikeCount(id);
+    }
+    /**
+     * 取消编辑文章
+     *
+     * @param id 文章ID
+     * @param userId 用户ID
+     * @return 操作结果的Result对象
+     */
+    @RequirePermission(UserRole.ADMIN)
+    @PostMapping("/{id}/cancel-edit")
+    public Result cancelEditEssay(@PathVariable String id, @RequestParam String userId) {
+        return lockService.unlockEssay(id, userId, false);
+    }
+}
