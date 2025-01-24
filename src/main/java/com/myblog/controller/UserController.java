@@ -1,14 +1,19 @@
 package com.myblog.controller;
 
 import com.myblog.annotation.RequirePermission;
+import com.myblog.dto.LoginDTO;
+import com.myblog.dto.RegisterDTO;
 import com.myblog.dto.Result;
 import com.myblog.entity.User;
 import com.myblog.service.UserService;
 import com.myblog.utility.UserRole;
+import com.myblog.utility.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * (User)用户表控制层
@@ -34,23 +39,25 @@ public class UserController {
     @GetMapping("/check")
     public Result checkUser(@RequestParam String email) {
         User user = userService.getUserByEmail(email);
-        if (user != null && user.getStatus() == 1) { // 假设状态1为正常使用
+        if (user == null) {
+            return Result.fail("用户不存在");
+        } else if (Objects.equals(user.getStatus(), UserStatus.NORMAL)) { // 假设状态1为正常使用
             return Result.ok(user.getUserName());
+        }else{
+            return Result.fail("用户状态异常："+user.getStatus().toString());
         }
-        return Result.fail("用户不存在或状态异常");
     }
 
     /**
      * 用户登录
-     * 在输入邮箱和密码后，登录，查看状态，返回jwt
+     * 接收LoginDTO，包含邮箱和密码，登录后返回jwt
      *
-     * @param email 用户邮箱
-     * @param password 用户密码
+     * @param loginDTO 登录信息DTO
      * @return 包含JWT的Result对象
      */
     @PostMapping("/login")
-    public Result login(@RequestParam String email, @RequestParam String password) {
-        String jwt = userService.login(email, password);
+    public Result login(@RequestBody LoginDTO loginDTO) {
+        String jwt = userService.login(loginDTO.getEmail(), loginDTO.getPassword());
         if (jwt != null) {
             return Result.ok(jwt);
         }
@@ -59,13 +66,26 @@ public class UserController {
 
     /**
      * 用户注册
-     * 在没有此用户或者状态为不通过、废弃时，输入邮箱、密码、身份（选项框）后注册，返回用户状态
+     * 接收RegisterDTO，包含用户注册信息，注册后返回用户状态
      *
-     * @param user 包含用户信息的User对象
+     * @param registerDTO 注册信息DTO
      * @return 包含用户状态的Result对象
      */
     @PostMapping("/register")
-    public Result register(@RequestBody User user) {
+    public Result register(@RequestBody RegisterDTO registerDTO) {
+        // 邮箱格式验证正则表达式
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+
+        if (!pattern.matcher(registerDTO.getEmail()).matches()) {
+            return Result.fail("邮箱格式有误");
+        }
+        User user = new User();
+        user.setEmail(registerDTO.getEmail());
+        user.setUserPassword(registerDTO.getPassword());
+        user.setUserName(registerDTO.getUserName());
+        user.setUserRole(registerDTO.getRole());
+
         Integer status = userService.register(user);
         if (status != null) {
             return Result.ok(status);

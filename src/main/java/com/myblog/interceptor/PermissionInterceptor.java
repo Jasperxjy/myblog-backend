@@ -1,14 +1,18 @@
 package com.myblog.interceptor;
 
 import com.myblog.annotation.RequirePermission;
-import com.myblog.utility.UserRole;
 import com.myblog.service.PermissionService;
+import com.myblog.utility.TokenUtil;
+import com.myblog.utility.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 权限拦截器
@@ -19,6 +23,10 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
     @Autowired
     private PermissionService permissionService;
+    @Autowired
+    private TokenUtil tokenUtil;
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
 
     /**
      * 在请求处理之前进行调用
@@ -32,43 +40,48 @@ public class PermissionInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 检查处理程序是否为 HandlerMethod 类型
-        if (!(handler instanceof HandlerMethod)) {
+        // 如果不是映射到方法，直接通过
+        if (!(handler instanceof HandlerMethod handlerMethod)) {
             return true;
         }
 
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        // 获取方法上的 RequirePermission 注解
         RequirePermission annotation = handlerMethod.getMethodAnnotation(RequirePermission.class);
 
-        // 如果方法没有 RequirePermission 注解，则允许访问
+        // 如果方法没有RequirePermission注解，直接通过
         if (annotation == null) {
             return true;
         }
 
-        // 获取注解中指定的所需角色
         String requiredRole = annotation.value();
-        // 获取当前用户ID
-        String userId = getCurrentUserId(request);
 
-        // 如果无法获取用户ID，则拒绝访问
-        if (userId == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "未登录或会话已过期");
-            return false;
+        // 验证JWT
+        String token = request.getHeader("Authorization");
+        if (token != null && !token.isEmpty()) {
+            if (tokenUtil.validateToken(token)) {
+                String userId = tokenUtil.getUserIdFromToken(token);
+                String storedToken = redisTemplate.opsForValue().get("token:" + userId);
+                if (token.equals(storedToken)) {
+                    String userRole = tokenUtil.getRoleFromToken(token);
+                    // 检查用户角色是否满足要求
+                    if (UserRole.hasPermission(userRole, requiredRole)) {
+                        request.setAttribute("userId", userId);
+                        request.setAttribute("userRole", userRole);
+
+                        // 检查是否需要刷新token
+                        if (tokenUtil.shouldRefreshToken(token)) {
+                            String newToken = tokenUtil.refreshToken(token);
+                            // 更新Redis中的token
+                            redisTemplate.opsForValue().set("token:" + userId, newToken, tokenUtil.getExpiration(), TimeUnit.SECONDS);
+                            // 在响应头中返回新的token
+                            response.setHeader("NewToken", newToken);
+                        }
+                        return true;
+                    }
+                }
+            }
         }
-
-        // 获取用户角色
-        String userRole = permissionService.getUserRole(userId);
-
-        // 检查用户是否有足够的权限
-        if (!UserRole.hasPermission(userRole, requiredRole)) {
-            // 如果权限不足，返回 403 Forbidden 错误
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "没有足够的权限");
-            return false;
-        }
-
-        // 用户有足够的权限，允许请求继续
-        return true;
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return false;
     }
 
     /**

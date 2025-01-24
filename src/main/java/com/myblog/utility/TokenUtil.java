@@ -3,11 +3,12 @@ package com.myblog.utility;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-
+@Data
 @Component
 public class TokenUtil {
 
@@ -15,7 +16,7 @@ public class TokenUtil {
     private String secret;
 
     @Value("${jwt.expiration}")
-    private long expiration;
+    private long expiration;//单位秒
 
     /**
      * 为给定的用户ID和角色生成JWT令牌
@@ -80,6 +81,24 @@ public class TokenUtil {
         } catch (Exception e) {
             return false;  // 如果解析过程中抛出异常，则令牌无效
         }
+    }
+    public Date getExpirationDateFromToken(String token) {
+        return getClaimsFromToken(token).getExpiration();
+    }
+
+    public String refreshToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        claims.setIssuedAt(new Date());
+        claims.setExpiration(new Date(System.currentTimeMillis() + expiration * 1000));
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+    }
+
+    public boolean shouldRefreshToken(String token) {
+        Date expirationDate = getExpirationDateFromToken(token);
+        return expirationDate.getTime() - System.currentTimeMillis() < 600000; // 10 minutes in milliseconds
     }
 }
 
