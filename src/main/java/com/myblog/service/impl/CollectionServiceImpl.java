@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.myblog.dao.CollectionDao;
 import com.myblog.entity.Collection;
 import com.myblog.service.CollectionService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 @Service("collectionService")
 public class CollectionServiceImpl extends ServiceImpl<CollectionDao, Collection> implements CollectionService {
-
+    @Cacheable(value = "collection")
     @Override
     public List<Collection> listAllCollections() {
         return List.of();

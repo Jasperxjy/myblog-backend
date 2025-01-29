@@ -115,7 +115,7 @@ public class ImageController {
      *
      * @return 包含未收录和未引用图片信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission(UserRole.ADMIN)
     @GetMapping("/uncategorized")
     public Result getUncategorizedImages() {
         List<Image> images = imageService.getUncategorizedImages();

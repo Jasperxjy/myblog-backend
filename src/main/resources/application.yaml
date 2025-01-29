@@ -1,3 +1,13 @@
+image:
+  root:
+    path: /usr/blog/image
+  default:
+    album:
+      id: 1
+music:
+  root:
+    path: /usr/blog/music
+
 server:
   port: 8082
 jwt:
