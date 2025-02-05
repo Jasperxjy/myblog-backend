@@ -18,5 +18,7 @@ public interface CommentService extends IService<Comment> {
     Comment addComment(Comment comment);
 
     boolean hideComment(String commentId);
+
+    Comment updateCommentLikes(String commentId);
 }
 

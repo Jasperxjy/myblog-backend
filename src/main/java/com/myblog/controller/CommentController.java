@@ -65,4 +65,16 @@ public class CommentController {
             return Result.fail("评论不存在或删除失败");
         }
     }
+    /**
+     * 评论点赞
+     *
+     * @param commentId 评论id
+     * @return 操作结果的Result对象
+     */
+    @RequirePermission(UserRole.FRIEND)
+    @PostMapping("/{commentId}/like")
+    public Result likeComment(@PathVariable String commentId) {
+        Comment likedComment = commentService.updateCommentLikes(commentId);
+        return Result.ok(likedComment);
+    }
 }

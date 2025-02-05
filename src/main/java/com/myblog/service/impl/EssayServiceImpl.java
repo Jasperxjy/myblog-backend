@@ -5,12 +5,14 @@ import com.myblog.dao.EssayDao;
 import com.myblog.dto.EssayBriefDTO;
 import com.myblog.dto.Result;
 import com.myblog.entity.Essay;
+import com.myblog.entity.Lock;
 import com.myblog.service.EssayService;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import com.myblog.service.LockService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,17 +24,62 @@ import java.util.stream.Collectors;
  */
 @Service("essayService")
 public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements EssayService {
+    @Autowired
+    private LockService lockService;
 
     @Override
     public Result getEssayWithLockCheck(String id) {
-        return null;
+        Essay essay = this.getById(id);
+        if (essay == null) {
+            return Result.fail("文章不存在");
+        }
+
+        // 检查文章是否被锁定
+        Result lockCheckResult = lockService.checkLock(id);
+        if (lockCheckResult.getSuccess()) {
+            return Result.fail("文章正在被编辑，暂时无法访问");
+        }
+
+        // 增加浏览次数
+        essay.setEssayViewNum(essay.getEssayViewNum() + 1);
+        this.updateById(essay);
+
+        return Result.ok(essay);
     }
 
     @Override
+    @Transactional
     public Result updateEssayWithLock(String id, Essay essay, String userId) {
-        return null;
+        // 检查文章是否存在
+        Essay existingEssay = this.getById(id);
+        if (existingEssay == null) {
+            return Result.fail("文章不存在");
+        }
+
+        // 检查锁定状态
+        Result lockCheckResult = lockService.checkLock(id);
+        if (!lockCheckResult.getSuccess()) {
+            return Result.fail("文章未被锁定，无法更新");
+        }
+
+        Lock lock = (Lock) lockCheckResult.getData();
+        if (!lock.getUserId().equals(userId)) {
+            return Result.fail("您没有编辑权限");
+        }
+
+        // 更新文章内容
+        existingEssay.setEssayContext(essay.getEssayContext());
+        existingEssay.setEssayLastChangeTime(LocalDateTime.now());
+
+        boolean updated = this.updateById(existingEssay);
+        if (updated) {
+            return Result.ok("文章内容已更新");
+        } else {
+            return Result.fail("更新失败");
+        }
     }
-    @Cacheable(value = "essaysBrief")
+
+
     @Override
     public List<EssayBriefDTO> listAllEssayBriefs() {
         return this.list().stream()
@@ -46,7 +93,7 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
                 .collect(Collectors.toList());
     }
 
-    @CachePut(value = "essays", key = "#essayId")
+
     @Override
     @Transactional
     public Result incrementLikeCount(String essayId) {

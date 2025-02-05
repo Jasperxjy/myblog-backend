@@ -46,9 +46,9 @@ public class Essay implements Serializable  {
     private Integer essayCollectionNum;
     //作者用户id
     private String userId;
-    //版本号用于加锁
+    //版本号
     private Integer version;
-    //状态，用于标识是否删除
+    //状态，用于标识正在编辑，正常，删除
     private Integer status;
     //用于添加到合集
     private String classId;

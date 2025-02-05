@@ -19,12 +19,12 @@ public class EssayTagServiceImpl extends ServiceImpl<EssayTagDao, EssayTag> impl
 
     @Override
     public List<EssayTag> getAllTags() {
-        return List.of();
+        return this.list();
     }
 
     @Override
     public boolean addTag(EssayTag essayTag) {
-        return false;
+        return this.save(essayTag);
     }
 }
 
