@@ -77,7 +77,7 @@ public class EssayController {
      * @param id 文章ID
      * @return 包含文章信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/view/{id}")
     @Cacheable(value = "essays", key = "#id")
     public Result getLatestEssay(@PathVariable String id) {
@@ -90,7 +90,7 @@ public class EssayController {
      * @return 包含所有文章列表的Result对象
      */
     @Cacheable(value = "essayBriefs")
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping
     public Result getAllEssays() {
         List<EssayBriefDTO> essayBriefs = essayService.listAllEssayBriefs();
@@ -181,7 +181,7 @@ public class EssayController {
      * @return 包含更新后点赞数的Result对象
      */
     @CachePut(value = "essays", key = "#id")
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @PostMapping("/{id}/like")
     public Result likeEssay(@PathVariable String id) {
         return essayService.incrementLikeCount(id);

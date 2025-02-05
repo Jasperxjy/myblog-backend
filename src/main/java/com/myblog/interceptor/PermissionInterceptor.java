@@ -3,6 +3,7 @@ package com.myblog.interceptor;
 import com.myblog.annotation.RequirePermission;
 import com.myblog.utility.TokenUtil;
 import com.myblog.utility.UserRole;
+import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +24,20 @@ public class PermissionInterceptor implements HandlerInterceptor {
     @Autowired
     private TokenUtil tokenUtil;
     @Autowired
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     /**
      * 在请求处理之前进行调用
      * 检查请求的方法是否有 @RequirePermission 注解，并验证用户权限
      *
-     * @param request 当前 HTTP 请求
+     * @param request  当前 HTTP 请求
      * @param response 当前 HTTP 响应
-     * @param handler 选择要执行的处理程序，通常是 HandlerMethod 类型
+     * @param handler  选择要执行的处理程序，通常是 HandlerMethod 类型
      * @return 如果用户有足够的权限则返回 true，否则返回 false
      * @throws Exception 如果发生异常
      */
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
         // 如果不是映射到方法，直接通过
         if (!(handler instanceof HandlerMethod handlerMethod)) {
             return true;

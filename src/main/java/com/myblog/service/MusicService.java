@@ -3,7 +3,7 @@ package com.myblog.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.myblog.dto.Result;
 import com.myblog.entity.Music;
-import org.springframework.core.io.Resource;;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 

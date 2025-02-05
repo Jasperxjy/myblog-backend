@@ -5,6 +5,8 @@ import com.myblog.dao.MusicDao;
 import com.myblog.dto.Result;
 import com.myblog.entity.Music;
 import com.myblog.service.MusicService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -36,6 +38,7 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
 
     @Value("${music.root.path}")
     private String musicRootPath;
+    private static final Logger logger = LoggerFactory.getLogger(MusicServiceImpl.class);
 
     @Override
     @CacheEvict(allEntries = true)
@@ -61,7 +64,7 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
 
             return Result.ok(music);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("上传音乐错误", e);
             return Result.fail("音乐上传失败");
         }
     }
@@ -74,7 +77,8 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
             try {
                 Files.deleteIfExists(Paths.get(music.getFilePath()));
             } catch (IOException e) {
-                e.printStackTrace();
+               logger.error("删除音乐错误", e);
+
                 return Result.fail("文件删除失败");
             }
             // 从数据库中删除记录

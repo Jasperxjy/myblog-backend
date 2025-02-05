@@ -57,7 +57,7 @@ public class EssayTagListController {
      * @param essayId 文章ID
      * @return 文章的所有标签
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/getTagsByEssay")
     public Result getTagsByEssay(@RequestParam String essayId) {
         List<EssayTag> tags = essayTagListService.getTagsByEssay(essayId);
@@ -70,7 +70,7 @@ public class EssayTagListController {
      * @param essayTagId 标签ID
      * @return 标签下的所有文章ID列表
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/getEssaysByTag")
     public Result getEssaysByTag(@RequestParam String essayTagId) {
         List<String> essayIds = essayTagListService.getEssaysByTag(essayTagId);

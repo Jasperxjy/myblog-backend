@@ -28,7 +28,7 @@ public class EssayTagController {
      *
      * @return 包含所有标签的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/all")
     public Result getAllTags() {
         List<EssayTag> tags = essayTagService.getAllTags();

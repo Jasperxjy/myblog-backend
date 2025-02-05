@@ -53,7 +53,7 @@ public class MusicController {
      *
      * @return 音乐列表
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/all")
     public Result getAllMusic() {
         List<Music> musicList = musicService.getAllMusic();
@@ -66,7 +66,7 @@ public class MusicController {
      * @param musicId 音乐ID
      * @return 音乐文件流
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/stream/{musicId}")
     public ResponseEntity<Resource> streamMusic(@PathVariable String musicId) {
         return musicService.streamMusic(musicId);

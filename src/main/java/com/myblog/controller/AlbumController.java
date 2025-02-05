@@ -29,7 +29,7 @@ public class AlbumController {
      *
      * @return 包含所有相册基本信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping
     public Result getAllAlbums() {
         List<Album> albums = albumService.listAllAlbums();
@@ -42,7 +42,7 @@ public class AlbumController {
      * @param id 相册ID
      * @return 包含相册详细信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/{id}")
     public Result getAlbumDetails(@PathVariable String id) {
         Album album = albumService.getAlbumById(id);

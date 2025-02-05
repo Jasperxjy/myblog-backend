@@ -59,7 +59,7 @@ public class NoteController {
      * @param essayId 文章ID
      * @return 批注列表
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/essay/{essayId}")
     public Result getNotesByEssay(@PathVariable String essayId) {
         return noteService.getNotesByEssay(essayId);

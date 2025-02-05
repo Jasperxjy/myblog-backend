@@ -30,7 +30,7 @@ public class ImageController {
      * @param imageId 图片ID
      * @return 包含图片路径的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/path/{imageId}")
     public Result getImagePath(@PathVariable String imageId) {
         String imagePath = imageService.getImagePath(imageId);
@@ -62,7 +62,7 @@ public class ImageController {
      * @param essayId 文章ID
      * @return 包含文章所有图片信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/essay/{essayId}")
     public Result getImagesByEssay(@PathVariable String essayId) {
         List<Image> images = imageService.getImagesByEssay(essayId);
@@ -103,7 +103,7 @@ public class ImageController {
      * @param albumId 相册ID
      * @return 包含相册所有图片信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/album/{albumId}")
     public Result getImagesByAlbum(@PathVariable String albumId) {
         List<Image> images = imageService.getImagesByAlbum(albumId);

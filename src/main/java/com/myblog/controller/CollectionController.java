@@ -28,7 +28,7 @@ public class CollectionController {
      *
      * @return 包含所有合集基本信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping
     public Result getAllCollections() {
         List<Collection> collections = collectionService.listAllCollections();
@@ -41,7 +41,7 @@ public class CollectionController {
      * @param id 合集ID
      * @return 包含合集详细信息的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/{id}")
     public Result getCollection(@PathVariable String id) {
         Collection collection = collectionService.getCollectionById(id);

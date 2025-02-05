@@ -21,15 +21,15 @@ public class AES {
     //  解决方案有两种：
     //1.需要安装Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files(可以在Oracle下载).
     //2.设置设置key的长度为16个字母和数字的字符窜（128 Bit/8=16字符）就不报错了。
-    private static String key = "KEYJSDKKYHKLSSWS";
+    private static final String key = "KEYJSDKKYHKLSSWS";
 
     //定义加密的编码
-    private static String charset = "utf-8";
+    private static final String charset = "utf-8";
 
     // 偏移量
-    private static int offset = 16;
-    private static String transformation = "AES/CBC/PKCS5Padding";
-    private static String algorithm = "AES";
+    private static final int offset = 16;
+    private static final String transformation = "AES/CBC/PKCS5Padding";
+    private static final String algorithm = "AES";
 
     /**
      * 加密

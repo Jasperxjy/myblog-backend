@@ -41,7 +41,6 @@ mybatis-plus:
 
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   global-config:
-    field-strategy: 0
     banner: true
     db-config:
       id-type: uuid

@@ -47,7 +47,7 @@ public class TipController {
      *
      * @return 包含所有贴士列表的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping
     public Result getAllTips() {
         List<Tip> tips = tipService.getAllTipsOrderByTimeDesc();
@@ -99,7 +99,7 @@ public class TipController {
      * @param tipId 贴士ID
      * @return 包含贴士详情的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/{tipId}")
     public Result getTipById(@PathVariable String tipId) {
         Tip tip = tipService.getTipById(tipId);

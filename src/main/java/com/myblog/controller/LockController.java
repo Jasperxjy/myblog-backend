@@ -20,7 +20,7 @@ public class LockController {
      * @param essayId 文章ID
      * @return 锁定状态的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/check/{essayId}")
     public Result checkLock(@PathVariable String essayId) {
         return lockService.checkLock(essayId);

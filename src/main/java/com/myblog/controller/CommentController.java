@@ -29,7 +29,7 @@ public class CommentController {
      * @param essayId 文章id
      * @return 包含所有可见评论内容的Result对象
      */
-    @RequirePermission(UserRole.GUEST)
+    @RequirePermission()
     @GetMapping("/essay/{essayId}")
     public Result getCommentsByEssayId(@PathVariable String essayId) {
         List<Comment> comments = commentService.getVisibleCommentsByEssayId(essayId);

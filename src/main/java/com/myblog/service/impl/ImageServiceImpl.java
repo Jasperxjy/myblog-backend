@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.myblog.dao.ImageDao;
 import com.myblog.entity.Image;
 import com.myblog.service.ImageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,6 +33,8 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     @Value("${image.root.path}")
     private String imageRootPath;
 
+    // 定义日志记录器
+    private static final Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
     @Value("${image.default.album.id}")
     private String defaultAlbumId;
 
@@ -67,7 +71,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
 
             return image;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("保存文件错误", e);
             return null;
         }
     }
@@ -86,7 +90,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             try {
                 Files.deleteIfExists(Paths.get(image.getFilePath()));
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("删除图片错误", e);
                 return false;
             }
             // 从数据库中删除记录

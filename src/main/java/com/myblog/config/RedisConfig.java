@@ -57,11 +57,6 @@ public class RedisConfig {
                 .computePrefixWith(cacheName -> cacheName + ":");
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-        //redis缓存过期时间配置，以下为教程的示例
-//        cacheConfigurations.put("stock", customRedisCacheConfiguration(config, Duration.ofSeconds(stockTtl)));
-//        cacheConfigurations.put("market", customRedisCacheConfiguration(config, Duration.ofSeconds(marketTtl)));
-//        cacheConfigurations.put("role", customRedisCacheConfiguration(config, Duration.ofSeconds(roleTtl)));
-
         return RedisCacheManager.builder(factory)
                 .transactionAware()
                 .withInitialCacheConfigurations(cacheConfigurations)
