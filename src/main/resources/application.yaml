@@ -7,7 +7,6 @@ image:
 music:
   root:
     path: /usr/blog/music
-
 server:
   port: 8082
 jwt:

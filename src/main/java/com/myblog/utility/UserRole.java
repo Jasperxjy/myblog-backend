@@ -7,17 +7,12 @@ public class UserRole {
     public static final String GUEST = "GUEST";
 
     public static int getLevel(String role) {
-        switch (role) {
-            case ADMIN:
-                return 4;
-            case CLOSE_FRIEND:
-                return 3;
-            case FRIEND:
-                return 2;
-            case GUEST:
-            default:
-                return 1;
-        }
+        return switch (role) {
+            case ADMIN -> 4;
+            case CLOSE_FRIEND -> 3;
+            case FRIEND -> 2;
+            default -> 1;
+        };
     }
 
     public static boolean hasPermission(String userRole, String requiredRole) {

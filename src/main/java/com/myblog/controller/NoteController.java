@@ -49,8 +49,8 @@ public class NoteController {
      */
     @RequirePermission(UserRole.CLOSE_FRIEND)
     @DeleteMapping("/{noteId}")
-    public Result deleteNote(@PathVariable String noteId) {
-        return noteService.deleteNote(noteId);
+    public Result deleteNote(@PathVariable String noteId,@RequestParam String essayId) {
+        return noteService.deleteNote(noteId,essayId);
     }
 
     /**

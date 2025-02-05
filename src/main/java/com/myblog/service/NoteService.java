@@ -13,7 +13,7 @@ import com.myblog.entity.Note;
 public interface NoteService extends IService<Note> {
     Result addNote(Note note);
     Result updateNote(Note note);
-    Result deleteNote(String noteId);
+    Result deleteNote(String noteId,String essayId);
     Result getNotesByEssay(String essayId);
 }
 
