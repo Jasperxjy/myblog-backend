@@ -6,7 +6,7 @@ import com.myblog.dto.Result;
 import com.myblog.entity.EssayTag;
 import com.myblog.service.EssayTagListService;
 import com.myblog.utility.UserRole;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/essayTagList")
 public class EssayTagListController {
 
-    @Resource
+    @Autowired
     private EssayTagListService essayTagListService;
 
     /**

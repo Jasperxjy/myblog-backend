@@ -7,11 +7,12 @@ import com.myblog.entity.Essay;
 import com.myblog.service.EssayService;
 import com.myblog.service.LockService;
 import com.myblog.utility.UserRole;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,9 +28,9 @@ import static com.myblog.utility.ConfigConstans.*;
 @RequestMapping("/essay")
 public class EssayController {
 
-    @Resource
+    @Autowired
     private EssayService essayService;
-    @Resource
+    @Autowired
     private LockService lockService;
 
     /**
@@ -127,7 +128,7 @@ public class EssayController {
      * @return 包含更新后的文章信息的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/context")
     public Result updateEssayContext(@PathVariable String id, @RequestBody Essay essay, @RequestAttribute("userId") String userId) {
         return essayService.updateEssayWithLock(id, essay, userId);
     }
@@ -194,7 +195,7 @@ public class EssayController {
      * @return 包含操作结果的Result对象，如果删除成功返回成功信息，否则返回失败信息
      */
     @RequirePermission(UserRole.ADMIN)
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/del")
     public Result deleteEssay(@PathVariable String id) {
         boolean removed = essayService.update().set("status", ESSAY_STATUS_DEL).eq("essay_id", id).update();
         if (removed) {

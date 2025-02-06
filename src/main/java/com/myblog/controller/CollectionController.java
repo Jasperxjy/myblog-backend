@@ -5,7 +5,7 @@ import com.myblog.dto.Result;
 import com.myblog.entity.Collection;
 import com.myblog.service.CollectionService;
 import com.myblog.utility.UserRole;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/collection")
 public class CollectionController {
 
-    @Resource
+    @Autowired
     private CollectionService collectionService;
 
     /**

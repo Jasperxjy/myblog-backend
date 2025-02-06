@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2024-12-28 22:36:09
  */
 @RestController
-@RequestMapping("tip")
+@RequestMapping("/tip")
 public class TipController {
 
     private final TipService tipService;
@@ -34,7 +34,7 @@ public class TipController {
      * @return 包含新增贴士信息的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @PostMapping
+    @PostMapping("/add")
     public Result addTip(@RequestBody Tip tip) {
         tip.setTime(LocalDateTime.now());
         tip.setStatus(1); // 假设1表示正常状态
@@ -48,7 +48,7 @@ public class TipController {
      * @return 包含所有贴士列表的Result对象
      */
     @RequirePermission()
-    @GetMapping
+    @GetMapping("/all")
     public Result getAllTips() {
         List<Tip> tips = tipService.getAllTipsOrderByTimeDesc();
         return Result.ok(tips);
@@ -62,7 +62,7 @@ public class TipController {
      * @return 操作结果的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @DeleteMapping("/{tipId}")
+    @DeleteMapping("/{tipId}/del")
     public Result deleteTip(@PathVariable String tipId) {
         boolean deleted = tipService.deleteTip(tipId);
         if (deleted) {
@@ -81,7 +81,7 @@ public class TipController {
      * @return 包含更新后贴士信息的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @PutMapping("/{tipId}")
+    @PutMapping("/{tipId}/update")
     public Result updateTip(@PathVariable String tipId, @RequestBody Tip tip) {
         tip.setTipId(tipId);
         tip.setTime(LocalDateTime.now()); // 更新修改时间
@@ -100,7 +100,7 @@ public class TipController {
      * @return 包含贴士详情的Result对象
      */
     @RequirePermission()
-    @GetMapping("/{tipId}")
+    @GetMapping("/{tipId}/detail")
     public Result getTipById(@PathVariable String tipId) {
         Tip tip = tipService.getTipById(tipId);
         if (tip != null) {

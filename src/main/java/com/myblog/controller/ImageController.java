@@ -5,7 +5,7 @@ import com.myblog.dto.Result;
 import com.myblog.entity.Image;
 import com.myblog.service.ImageService;
 import com.myblog.utility.UserRole;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/image")
 public class ImageController {
 
-    @Resource
+    @Autowired
     private ImageService imageService;
 
     /**
@@ -76,7 +76,7 @@ public class ImageController {
      * @return 删除结果的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @DeleteMapping("/{imageId}")
+    @DeleteMapping("/{imageId}/del")
     public Result deleteImage(@PathVariable String imageId) {
         boolean success = imageService.deleteImage(imageId);
         return success ? Result.ok() : Result.fail("图片删除失败");
@@ -90,7 +90,7 @@ public class ImageController {
      * @return 更新后的图片信息的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @PutMapping("/{imageId}")
+    @PutMapping("/{imageId}/update")
     public Result updateImage(@PathVariable String imageId, @RequestBody Image image) {
         image.setImageId(imageId);
         Image updatedImage = imageService.updateImage(image);

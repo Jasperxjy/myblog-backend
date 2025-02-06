@@ -35,7 +35,7 @@ public class NoteController {
      * @return 修改结果
      */
     @RequirePermission(UserRole.CLOSE_FRIEND)
-    @PutMapping("/{noteId}")
+    @PutMapping("/{noteId}/update")
     public Result updateNote(@PathVariable String noteId, @RequestBody Note note) {
         note.setNoteId(noteId);
         return noteService.updateNote(note);
@@ -48,7 +48,7 @@ public class NoteController {
      * @return 删除结果
      */
     @RequirePermission(UserRole.CLOSE_FRIEND)
-    @DeleteMapping("/{noteId}")
+    @DeleteMapping("/{noteId}/del")
     public Result deleteNote(@PathVariable String noteId,@RequestParam String essayId) {
         return noteService.deleteNote(noteId,essayId);
     }

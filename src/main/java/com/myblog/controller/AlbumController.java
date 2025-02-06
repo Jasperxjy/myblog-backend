@@ -5,7 +5,7 @@ import com.myblog.dto.Result;
 import com.myblog.entity.Album;
 import com.myblog.service.AlbumService;
 import com.myblog.utility.UserRole;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/album")
 public class AlbumController {
 
-    @Resource
+    @Autowired
     private AlbumService albumService;
 
     /**
