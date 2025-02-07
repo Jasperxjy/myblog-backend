@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
     </properties>
     <dependencies>
         <dependency>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>1.18.30</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -45,24 +45,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--序列化-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>2.0.32</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.13.4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.11.4</version>
-            <!-- 版本可以使用2.9.3、2.9.5 、2.9.8，不能忽略version属性-->
-        </dependency>
 
         <!--MybatisPlus-->
         <dependency>
@@ -78,7 +60,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <version>8.0.33</version>
         </dependency>
 
         <dependency>
@@ -112,15 +94,15 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>0.6.0</version>
+            <version>0.12.3</version>
         </dependency>
 
         <!-- SLF4J API -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.slf4j</groupId>-->
+<!--            <artifactId>slf4j-api</artifactId>-->
+<!--            <version>2.0.0</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

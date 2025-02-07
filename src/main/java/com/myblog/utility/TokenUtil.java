@@ -2,11 +2,13 @@ package com.myblog.utility;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 @Data
 @Component
@@ -18,6 +20,11 @@ public class TokenUtil {
     @Value("${jwt.expiration}")
     private long expiration;//单位秒
 
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
     /**
      * 为给定的用户ID和角色生成JWT令牌
      *
@@ -27,11 +34,11 @@ public class TokenUtil {
      */
     public String generateToken(String userId, String role) {
         return Jwts.builder()
-                .setSubject(userId)  // 设置令牌的主题为用户ID
+                .subject(userId)  // 设置令牌的主题为用户ID
                 .claim("role", role)  // 添加自定义声明，包含用户角色
-                .setIssuedAt(new Date())  // 设置令牌的签发时间
-                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))  // 设置令牌的过期时间
-                .signWith(SignatureAlgorithm.HS512, secret)  // 使用HS512算法和密钥签名令牌
+                .issuedAt(new Date())  // 设置令牌的签发时间
+                .expiration(new Date(System.currentTimeMillis() + expiration * 1000))  // 设置令牌的过期时间
+                .signWith(getSigningKey())  // 使用HMAC-SHA512算法和密钥签名令牌
                 .compact();  // 生成最终的令牌字符串
     }
 
@@ -43,9 +50,10 @@ public class TokenUtil {
      */
     public Claims getClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secret)  // 设置用于验证签名的密钥
-                .parseClaimsJws(token)  // 解析令牌
-                .getBody();  // 获取令牌主体（即声明部分）
+                .verifyWith(getSigningKey())  // 设置用于验证签名的密钥
+                .build()
+                .parseSignedClaims(token)  // 解析令牌
+                .getPayload();  // 获取令牌主体（即声明部分）
     }
 
     /**
@@ -76,23 +84,27 @@ public class TokenUtil {
      */
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
             return true;  // 如果解析成功，则令牌有效
         } catch (Exception e) {
             return false;  // 如果解析过程中抛出异常，则令牌无效
         }
     }
+
     public Date getExpirationDateFromToken(String token) {
         return getClaimsFromToken(token).getExpiration();
     }
 
     public String refreshToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        claims.setIssuedAt(new Date());
-        claims.setExpiration(new Date(System.currentTimeMillis() + expiration * 1000));
         return Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .claims(claims)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration * 1000))
+                .signWith(getSigningKey())
                 .compact();
     }
 
