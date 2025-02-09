@@ -69,7 +69,7 @@ public class EssayTagListServiceImpl extends ServiceImpl<EssayTagListDao, EssayT
      * @return 文章关联的所有标签列表
      */
     @Override
-    @Cacheable(value = "essay_tags:" ,key = "#essayId")
+    @Cacheable(value = "essay_tags:" ,key = "#essayId",unless = "#result == null")
     public List<EssayTag> getTagsByEssay(String essayId) {
         // 首先查询文章-标签关联表
         QueryWrapper<EssayTagList> queryWrapper = new QueryWrapper<>();

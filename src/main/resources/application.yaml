@@ -7,10 +7,11 @@ image:
 music:
   root:
     path: /usr/blog/music
+
 server:
   port: 8082
 jwt:
-  secret: qwer12345
+  secret: ghbsgasrfqwe_fsdfasdfasqwer12345sdf
   expiration: 3600
 spring:
   datasource:
@@ -23,6 +24,9 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     serialization:
       write-date-keys-as-timestamps: false
+  cache:
+    redis:
+      time-to-live: 3600
   data:
     redis:
       host: 47.108.171.144

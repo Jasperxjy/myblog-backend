@@ -38,20 +38,20 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumDao, Album> implements Al
         return album;
     }
 
-    @Cacheable(value = "album", key = "#id")
+    @Cacheable(value = "album", key = "#id",unless = "#result == null")
     @Override
     public Album getAlbumById(String id) {
 
         return getById(id);
     }
 
-    @Cacheable(value = "albums")
+    @Cacheable(value = "albums",unless = "#result == null")
     @Override
     public List<Album> listAllAlbums() {
         return list();
     }
 
-    @CachePut(value = "album", key = "#album.albumId")
+    @CachePut(value = "album", key = "#album.albumId",unless = "#result == null")
     @Override
     public Album updateAlbum(Album album) {
         if (updateById(album)) {

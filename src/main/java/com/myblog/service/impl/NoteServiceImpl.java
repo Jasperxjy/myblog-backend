@@ -86,7 +86,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
     }
 
     @Override
-    @Cacheable(value = "notes",key = "#essayId")
+    @Cacheable(value = "notes",key = "#essayId",unless = "#result == null")
     public Result getNotesByEssay(String essayId) {
         // 校验文章 ID
         if (essayId == null || essayId.isEmpty()) {

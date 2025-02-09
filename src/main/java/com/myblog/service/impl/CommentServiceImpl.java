@@ -27,7 +27,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
      * @param essayId 文章id
      * @return 包含所有可见评论的列表
      */
-    @Cacheable(value = "essayComments", key = "#essayId")
+    @Cacheable(value = "essayComments", key = "#essayId",unless = "#result == null")
     @Override
     public List<Comment> getVisibleCommentsByEssayId(String essayId) {
         LambdaQueryWrapper<Comment> queryWrapper = new LambdaQueryWrapper<>();
@@ -76,7 +76,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
      * @param commentId 评论id
      * @return 评论对象，如果不存在则返回null
      */
-    @Cacheable(value = "comment", key = "#commentId")
+    @Cacheable(value = "comment", key = "#commentId",unless = "#result == null")
     public Comment getCommentById(String commentId) {
         return getById(commentId);
     }

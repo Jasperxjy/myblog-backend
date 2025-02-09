@@ -54,10 +54,12 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
         // 验证JWT
         String token = request.getHeader("Authorization");
+
         if (token != null && !token.isEmpty()) {
             if (tokenUtil.validateToken(token)) {
                 String userId = tokenUtil.getUserIdFromToken(token);
                 String storedToken = redisTemplate.opsForValue().get("token:" + userId);
+
                 if (token.equals(storedToken)) {
                     String userRole = tokenUtil.getRoleFromToken(token);
                     // 检查用户角色是否满足要求

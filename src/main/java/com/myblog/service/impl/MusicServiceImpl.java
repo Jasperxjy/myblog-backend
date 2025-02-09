@@ -41,7 +41,7 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
     private static final Logger logger = LoggerFactory.getLogger(MusicServiceImpl.class);
 
     @Override
-    @CacheEvict(allEntries = true)
+    @CacheEvict(value = "musics")
     public Result uploadMusic(MultipartFile file, String description) {
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -99,7 +99,7 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
     }
 
     @Override
-    @Cacheable(value = "musics")
+    @Cacheable(value = "musics",unless = "#result == null")
     public List<Music> getAllMusic() {
         return list();
     }

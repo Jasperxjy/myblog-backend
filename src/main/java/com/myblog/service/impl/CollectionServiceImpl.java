@@ -38,7 +38,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionDao, Collection
      * @param id 合集ID
      * @return 查询到的合集，如果不存在则返回null
      */
-    @Cacheable(value = "collection", key = "#id")
+    @Cacheable(value = "collection", key = "#id",unless = "#result == null")
     @Override
     public Collection getCollectionById(String id) {
         return getById(id);

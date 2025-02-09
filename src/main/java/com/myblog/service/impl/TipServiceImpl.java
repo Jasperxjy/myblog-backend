@@ -43,7 +43,7 @@ public class TipServiceImpl extends ServiceImpl<TipDao, Tip> implements TipServi
      * @return 所有贴士的列表
      */
     @Override
-    @Cacheable(value = "tips")
+    @Cacheable(value = "tips",unless = "#result == null")
     public List<Tip> getAllTipsOrderByTimeDesc() {
         return tipDao.selectListByTimeDesc(); // 假设在 TipDao 中有实现该查询方法
     }

@@ -90,7 +90,7 @@ public class EssayController {
      *
      * @return 包含所有文章列表的Result对象
      */
-    @Cacheable(value = "essayBriefs")
+    @Cacheable(value = "essayBriefs",unless = "#result == null")
     @RequirePermission()
     @GetMapping
     public Result getAllEssays() {
@@ -181,7 +181,7 @@ public class EssayController {
      * @param id 文章ID
      * @return 包含更新后点赞数的Result对象
      */
-    @CachePut(value = "essays", key = "#id")
+    @CachePut(value = "essays", key = "#id",unless = "#result == null")
     @RequirePermission()
     @PostMapping("/{id}/like")
     public Result likeEssay(@PathVariable String id) {

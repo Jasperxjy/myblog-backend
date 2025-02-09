@@ -38,7 +38,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     @Value("${image.default.album.id}")
     private String defaultAlbumId;
 
-    @Cacheable(value = "image",key = "#imageId")
+    @Cacheable(value = "image",key = "#imageId",unless = "#result == null")
     @Override
     public String getImagePath(String imageId) {
         Image image = getById(imageId);
@@ -76,7 +76,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
         }
     }
 
-    @Cacheable(value = "Essay_images",key = "#essayId")
+    @Cacheable(value = "Essay_images",key = "#essayId",unless = "#result == null")
     @Override
     public List<Image> getImagesByEssay(String essayId) {
         return list(new QueryWrapper<Image>().eq("essay_id", essayId));
@@ -98,7 +98,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
         }
         return false;
     }
-    @Cacheable(value = "image",key = "#image.imageId")
+    @Cacheable(value = "image",key = "#image.imageId",unless = "#result == null")
     @Override
     public Image updateImage(Image image) {
         if (updateById(image)) {
@@ -107,7 +107,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
         return null;
     }
 
-    @Cacheable(value = "Album_images",key = "#albumId")
+    @Cacheable(value = "Album_images",key = "#albumId",unless = "#result == null")
     @Override
     public List<Image> getImagesByAlbum(String albumId) {
         return list(new QueryWrapper<Image>().eq("album_id", albumId));

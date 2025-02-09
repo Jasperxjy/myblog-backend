@@ -29,16 +29,15 @@ public class User implements Serializable {
     @TableId(type = IdType.ASSIGN_UUID)
     private String userId;
     //用户名
-    @TableField(value = "password",typeHandler = AesTypeHandler.class)
+    @TableField(value = "user_name",typeHandler = AesTypeHandler.class)
     private String userName;
     //用户密码
-    @TableField(value = "password",typeHandler = AesTypeHandler.class)
+    @TableField(value = "user_password",typeHandler = AesTypeHandler.class)
     private String userPassword;
     //用户注册时间
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime userRegisterTime;
     //用户身份
-    @TableField(value = "password",typeHandler = AesTypeHandler.class)
     private String userRole;
     //用户使用邮箱注册
     private String email;

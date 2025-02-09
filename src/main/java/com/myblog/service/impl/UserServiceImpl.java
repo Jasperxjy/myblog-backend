@@ -29,7 +29,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    @Cacheable(value = "user",key = "#email")
+    @Cacheable(value = "user",key = "#email",unless = "#result == null")
     @Override
     public User getUserByEmail(String email) {
         return userDao.selectOne(new QueryWrapper<User>().eq("email", email));
