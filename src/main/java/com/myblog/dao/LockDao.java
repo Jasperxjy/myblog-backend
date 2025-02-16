@@ -1,7 +1,7 @@
 package com.myblog.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.myblog.entity.Lock;
+import com.myblog.entity.EssayLock;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2024-12-28 18:30:29
  */
 @Mapper
-public interface LockDao extends BaseMapper<Lock> {
+public interface LockDao extends BaseMapper<EssayLock> {
 
 }
 

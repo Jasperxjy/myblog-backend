@@ -6,6 +6,7 @@ import com.myblog.dao.NoteDao;
 import com.myblog.dto.Result;
 import com.myblog.entity.Note;
 import com.myblog.service.NoteService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteService {
 
     @Override
+    @CacheEvict(value = "notesByEssay", key = "#note.essayId")
     public Result addNote(Note note) {
         // 校验批注内容
         if (note.getContent() == null || note.getContent().isEmpty()) {
@@ -44,6 +46,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
     }
 
     @Override
+    @CacheEvict(value = "notesByEssay", key = "#note.essayId")
     public Result updateNote(Note note) {
         // 校验批注 ID
         if (note.getNoteId() == null || note.getNoteId().isEmpty()) {
@@ -70,6 +73,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
     }
 
     @Override
+    @CacheEvict(value = "notesByEssay", key = "#essayId")
     public Result deleteNote(String noteId,String essayId) {
         // 校验批注 ID
         if (noteId == null || noteId.isEmpty()) {
@@ -86,7 +90,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
     }
 
     @Override
-    @Cacheable(value = "notes",key = "#essayId",unless = "#result == null")
+    @Cacheable(value = "notesByEssay", key = "#essayId", unless = "#result == null")
     public Result getNotesByEssay(String essayId) {
         // 校验文章 ID
         if (essayId == null || essayId.isEmpty()) {

@@ -31,7 +31,7 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumDao, Album> implements Al
     @Value("${image.default.album.id}")
     private String defaultAlbumId;
 
-    @Cacheable(value = "album", key = "#album.albumId")
+    @Cacheable(value = "album", key = "#album.albumId",unless = "#result == null")
     @Override
     public Album createAlbum(Album album) {
         save(album);
@@ -45,7 +45,7 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumDao, Album> implements Al
         return getById(id);
     }
 
-    @Cacheable(value = "albums",unless = "#result == null")
+    @Cacheable(value = "albums",key = "'allalbums'",unless = "#result == null")
     @Override
     public List<Album> listAllAlbums() {
         return list();
@@ -60,7 +60,7 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumDao, Album> implements Al
         return null;
     }
 
-    @CacheEvict(value = "album", key = "#id")
+    @CacheEvict(value = {"album","albums"}, allEntries = true)
     @Override
     public boolean deleteAlbum(String id) {
         Album album = getById(id);

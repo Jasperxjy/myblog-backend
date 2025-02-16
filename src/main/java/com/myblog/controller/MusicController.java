@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/music")
+@RequestMapping("/api/music")
 public class MusicController {
 
     @Autowired

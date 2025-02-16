@@ -18,7 +18,7 @@ import java.util.List;
  * @since 2024-12-28 18:28:09
  */
 @RestController
-@RequestMapping("/album")
+@RequestMapping("/api/album")
 public class AlbumController {
 
     @Autowired

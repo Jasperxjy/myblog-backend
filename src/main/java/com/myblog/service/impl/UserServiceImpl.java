@@ -8,6 +8,7 @@ import com.myblog.service.UserService;
 import com.myblog.utility.TokenUtil;
 import com.myblog.utility.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -69,10 +70,15 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         User user = getById(userId);
         if (user != null) {
             user.setStatus(status);
+            updateUserCache(user.getEmail());
             return updateById(user);
         }
         return false;
     }
+    @CachePut(value = "user", key = "#email")
+    public void updateUserCache(String email) {
+    }
+
 
     @Override
     public String guestLogin() {
@@ -89,5 +95,12 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Override
     public List<User> getAllUsers() {
         return list();
+    }
+
+    @Override
+    public boolean logout(String userId) {
+        String key = "token:" + userId;
+        Boolean deleted = redisTemplate.delete(key);
+        return Boolean.TRUE.equals(deleted);
     }
 }

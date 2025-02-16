@@ -59,16 +59,31 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
      * @param commentId 评论id
      * @return 操作是否成功
      */
-    @CacheEvict(value = "essayComments", allEntries = true)
     @Override
     public boolean hideComment(String commentId) {
         Comment comment = getById(commentId);
         if (comment != null) {
             comment.setCommentVisible("0");
-            return updateById(comment);
+            boolean result = updateById(comment);
+            if (result) {
+                // 手动清除缓存
+                clearCommentCache(comment.getEssayId());
+            }
+            return result;
         }
         return false;
     }
+
+    /**
+     * 清除指定文章的评论缓存
+     *
+     * @param essayId 文章id
+     */
+    @CacheEvict(value = "essayComments", key = "#essayId")
+    public void clearCommentCache(String essayId) {
+        // 这个方法体可以为空，@CacheEvict 注解会处理缓存的清除
+    }
+
 
     /**
      * 获取评论详情
@@ -88,14 +103,30 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
      * @return 更新后的评论对象，如果评论不存在则返回null
      */
     @Override
-    @CacheEvict(value = {"comment", "essayComments"}, allEntries = true)
     public Comment updateCommentLikes(String commentId) {
         Comment comment = getById(commentId);
         if (comment != null) {
             comment.setCommentLikeNum(comment.getCommentLikeNum() + 1);
-            updateById(comment);
+            boolean updated = updateById(comment);
+            if (updated) {
+                // 清除特定评论的缓存
+                clearCommentCache(commentId);
+                // 清除该评论所属文章的评论列表缓存
+                clearEssayCommentsCache(comment.getEssayId());
+            }
             return comment;
         }
         return null;
     }
+
+    /**
+     * 清除指定文章的评论列表缓存
+     *
+     * @param essayId 文章id
+     */
+    @CacheEvict(value = "essayComments", key = "#essayId")
+    public void clearEssayCommentsCache(String essayId) {
+        // 方法体可以为空，注解会处理缓存的清除
+    }
+
 }

@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2024-12-28 18:29:38
  */
 @RestController
-@RequestMapping("/essayTag")
+@RequestMapping("/api/essayTag")
 public class EssayTagController {
 
     @Autowired

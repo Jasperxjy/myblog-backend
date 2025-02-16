@@ -90,12 +90,23 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
     }
 
     @Override
-    @CacheEvict(value = "musics")
     public Result updateMusic(Music music) {
         if (updateById(music)) {
+            clearMusicCache(music.getMusicId());
+            clearAllMusicCache();
             return Result.ok(getById(music.getMusicId()));
         }
         return Result.fail("更新失败");
+    }
+
+    @CacheEvict(value = "musics", key = "#musicId")
+    public void clearMusicCache(String musicId) {
+        // 方法体可以为空，注解会处理缓存的清除
+    }
+
+    @CacheEvict(value = "musics", allEntries = true)
+    public void clearAllMusicCache() {
+        // 方法体可以为空，注解会处理缓存的清除
     }
 
     @Override

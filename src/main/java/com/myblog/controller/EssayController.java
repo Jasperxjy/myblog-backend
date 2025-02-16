@@ -25,7 +25,7 @@ import static com.myblog.utility.ConfigConstans.*;
  * @since 2024-12-28 18:29:24
  */
 @RestController
-@RequestMapping("/essay")
+@RequestMapping("/api/essay")
 public class EssayController {
 
     @Autowired
@@ -105,7 +105,7 @@ public class EssayController {
      * @param essay 包含更新信息的文章对象
      * @return 包含更新后的文章信息的Result对象，如果文章不存在则返回失败信息
      */
-    @CacheEvict(value = "essays", key = "#id", allEntries = true)
+    @CacheEvict(value = "essays", key = "#id")
     @RequirePermission(UserRole.ADMIN)
     @PutMapping("/{id}")
     public Result updateEssay(@PathVariable String id, @RequestBody Essay essay) {
@@ -141,7 +141,7 @@ public class EssayController {
      * @param userId 用户ID
      * @return 包含锁定信息的Result对象
      */
-    @CacheEvict(value = "essays", key = "#id", allEntries = true)
+    @CacheEvict(value = "essays", key = "#id")
     @RequirePermission(UserRole.ADMIN)
     @PostMapping("/{id}/edit")
     public Result startEditEssay(@PathVariable String id, @RequestParam String userId) {

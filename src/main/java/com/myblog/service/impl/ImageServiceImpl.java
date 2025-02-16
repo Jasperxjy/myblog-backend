@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.myblog.dao.ImageDao;
 import com.myblog.entity.Image;
 import com.myblog.service.ImageService;
+import com.myblog.utility.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,6 +58,11 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             // 保存文件
             file.transferTo(new File(filePath));
 
+            // 生成缩略图
+            String thumbnailFileName = "thumbnail_" + fileName;
+            String thumbnailPath = Paths.get(imageRootPath, "image", thumbnailFileName).toString();
+            ImageUtils.generateThumbnail(filePath, thumbnailPath, 300); // 假设缩略图最大边长为300像素
+
             // 创建Image对象
             Image image = new Image()
                     .setFileName(fileName)
@@ -64,7 +70,8 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
                     .setEssayId(essayId)
                     .setAlbumId(essayId == null ? (albumId != null ? albumId : defaultAlbumId) : null)
                     .setUpdateTime(LocalDateTime.now())
-                    .setDescription(description);
+                    .setDescription(description)
+                    .setPreviewPath(thumbnailPath);
 
             // 保存到数据库
             save(image);
@@ -86,22 +93,38 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     public boolean deleteImage(String imageId) {
         Image image = getById(imageId);
         if (image != null) {
-            // 删除文件
+            // 删除原始文件
             try {
                 Files.deleteIfExists(Paths.get(image.getFilePath()));
+
+                // 删除缩略图
+                if (image.getPreviewPath() != null) {
+                    Files.deleteIfExists(Paths.get(image.getPreviewPath()));
+                }
+
+                // 从数据库中删除记录
+                return removeById(imageId);
             } catch (IOException e) {
                 logger.error("删除图片错误", e);
                 return false;
             }
-            // 从数据库中删除记录
-            return removeById(imageId);
         }
         return false;
     }
-    @Cacheable(value = "image",key = "#image.imageId",unless = "#result == null")
+
     @Override
     public Image updateImage(Image image) {
         if (updateById(image)) {
+            // 清除相关缓存
+            clearImageCache(image.getImageId());
+            if (image.getEssayId() != null) {
+                clearEssayImagesCache(image.getEssayId());
+            }
+            if (image.getAlbumId() != null) {
+                clearAlbumImagesCache(image.getAlbumId());
+            } else {
+                clearUncategorizedImagesCache();
+            }
             return getById(image.getImageId());
         }
         return null;
@@ -118,25 +141,62 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
         return list(new QueryWrapper<Image>().isNull("essay_id").isNull("album_id"));
     }
 
-    @CacheEvict(value = "Album_images", key = "#albumId")
     @Override
     public boolean addImageToAlbum(String imageId, String albumId) {
         Image image = getById(imageId);
         if (image != null) {
+            String oldAlbumId = image.getAlbumId();
             image.setAlbumId(albumId);
-            return updateById(image);
+            boolean updated = updateById(image);
+            if (updated) {
+                // 清除相关缓存
+                clearImageCache(imageId);
+                clearAlbumImagesCache(albumId);
+                if (oldAlbumId != null) {
+                    clearAlbumImagesCache(oldAlbumId);
+                } else {
+                    clearUncategorizedImagesCache();
+                }
+            }
+            return updated;
         }
         return false;
     }
 
-    @CacheEvict(value = "Album_images", key = "#albumId")
     @Override
     public boolean removeImageFromAlbum(String imageId, String albumId) {
         Image image = getById(imageId);
         if (image != null && albumId.equals(image.getAlbumId())) {
             image.setAlbumId(null);
-            return updateById(image);
+            boolean updated = updateById(image);
+            if (updated) {
+                // 清除相关缓存
+                clearImageCache(imageId);
+                clearAlbumImagesCache(albumId);
+                clearUncategorizedImagesCache();
+            }
+            return updated;
         }
         return false;
+    }
+    // 新增的缓存清除方法
+    @CacheEvict(value = "image", key = "#imageId")
+    public void clearImageCache(String imageId) {
+        // 方法体可以为空，注解会处理缓存的清除
+    }
+
+    @CacheEvict(value = "Essay_images", key = "#essayId")
+    public void clearEssayImagesCache(String essayId) {
+        // 方法体可以为空，注解会处理缓存的清除
+    }
+
+    @CacheEvict(value = "Album_images", key = "#albumId")
+    public void clearAlbumImagesCache(String albumId) {
+        // 方法体可以为空，注解会处理缓存的清除
+    }
+
+    @CacheEvict(value = "Uncategorized_images", allEntries = true)
+    public void clearUncategorizedImagesCache() {
+        // 方法体可以为空，注解会处理缓存的清除
     }
 }

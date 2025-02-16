@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "lock",autoResultMap = true)
-public class Lock implements Serializable {
+@TableName(value = "essay_lock",autoResultMap = true)
+public class EssayLock implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     //锁id

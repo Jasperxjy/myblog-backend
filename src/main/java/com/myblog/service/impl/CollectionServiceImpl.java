@@ -25,7 +25,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionDao, Collection
      *
      * @return 所有合集的列表
      */
-    @Cacheable(value = "allCollections")
+    @Cacheable(value = "allCollections",key = "'all'")
     @Override
     public List<Collection> listAllCollections() {
         return list();

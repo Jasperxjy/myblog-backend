@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2024-12-28 22:36:09
  */
 @RestController
-@RequestMapping("/tip")
+@RequestMapping("/api/tip")
 public class TipController {
 
     private final TipService tipService;

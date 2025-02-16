@@ -16,7 +16,7 @@ jwt:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://47.108.171.144:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8
     username: root
     password: bl.264979
   jackson:
@@ -29,7 +29,7 @@ spring:
       time-to-live: 3600
   data:
     redis:
-      host: 47.108.171.144
+      host: localhost
       password: 264979
       port: 6379
       timeout: 2000

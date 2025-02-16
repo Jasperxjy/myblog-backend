@@ -31,7 +31,7 @@ public class TipServiceImpl extends ServiceImpl<TipDao, Tip> implements TipServi
      * @return 新增后的贴士对象
      */
     @Override
-    @CacheEvict(value = "tips")
+    @CacheEvict(value = "tips", allEntries = true)
     public Tip addTip(Tip tip) {
         // 使用 MyBatis-Plus 的 save 方法来插入数据
         boolean isSaved = this.save(tip);
@@ -43,7 +43,7 @@ public class TipServiceImpl extends ServiceImpl<TipDao, Tip> implements TipServi
      * @return 所有贴士的列表
      */
     @Override
-    @Cacheable(value = "tips",unless = "#result == null")
+    @Cacheable(value = "tips",  key = "'allTips'",unless = "#result == null")
     public List<Tip> getAllTipsOrderByTimeDesc() {
         return tipDao.selectListByTimeDesc(); // 假设在 TipDao 中有实现该查询方法
     }
@@ -54,7 +54,7 @@ public class TipServiceImpl extends ServiceImpl<TipDao, Tip> implements TipServi
      * @return 删除是否成功
      */
     @Override
-    @CacheEvict(value = "tips")
+    @CacheEvict(value = "tips", allEntries = true)
     public boolean deleteTip(String tipId) {
         // 删除时需要先检查是否存在该贴士
         Tip tip = this.getById(tipId);
@@ -70,7 +70,7 @@ public class TipServiceImpl extends ServiceImpl<TipDao, Tip> implements TipServi
      * @return 更新后的贴士对象
      */
     @Override
-    @CacheEvict(value = "tips")
+    @CacheEvict(value = "tips", allEntries = true)
     public Tip updateTip(Tip tip) {
         // 使用 MyBatis-Plus 的 updateById 方法更新贴士内容
         boolean isUpdated = this.updateById(tip);
@@ -94,7 +94,7 @@ public class TipServiceImpl extends ServiceImpl<TipDao, Tip> implements TipServi
      * @return 更新是否成功
      */
     @Override
-    @CacheEvict(value = "tips")
+    @CacheEvict(value = "tips", allEntries = true)
     public boolean updateTipStatus(String tipId, Integer status) {
         Tip tip = this.getById(tipId);
         if (tip != null) {

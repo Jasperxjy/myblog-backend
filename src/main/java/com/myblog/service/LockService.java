@@ -2,7 +2,7 @@ package com.myblog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.myblog.dto.Result;
-import com.myblog.entity.Lock;
+import com.myblog.entity.EssayLock;
 
 /**
  * (Lock)表服务接口
@@ -10,7 +10,7 @@ import com.myblog.entity.Lock;
  * @author makejava
  * @since 2024-12-28 18:30:29
  */
-public interface LockService extends IService<Lock> {
+public interface LockService extends IService<EssayLock> {
 
     Result lockEssay(String id, String userId);
 

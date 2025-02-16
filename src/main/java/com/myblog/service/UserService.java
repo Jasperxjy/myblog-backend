@@ -26,5 +26,7 @@ public interface UserService extends IService<User> {
     String guestLogin();
 
     List<User> getAllUsers();
+
+    boolean logout(String userId);
 }
 

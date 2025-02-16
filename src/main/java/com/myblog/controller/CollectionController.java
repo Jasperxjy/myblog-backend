@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2024-12-28 18:41:05
  */
 @RestController
-@RequestMapping("/collection")
+@RequestMapping("/api/collection")
 public class CollectionController {
 
     @Autowired

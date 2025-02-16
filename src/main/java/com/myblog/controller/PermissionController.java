@@ -1,5 +1,6 @@
 package com.myblog.controller;
 
+import com.myblog.dto.Result;
 import com.myblog.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2024-12-28 18:31:02
  */
 @RestController
-@RequestMapping("/permission")
+@RequestMapping("/api/permission")
 public class PermissionController {
 
     @Autowired
@@ -26,8 +27,9 @@ public class PermissionController {
      * @return 返回是否有权限的结果
      */
     @GetMapping("/hasPermission")
-    public boolean hasPermission(@RequestParam String userId, @RequestParam String targetId) {
-        return permissionService.hasPermission(userId, targetId);
+    public Result hasPermission(@RequestParam String userId, @RequestParam String targetId) {
+        boolean hasPermission = permissionService.hasPermission(userId, targetId);
+        return hasPermission ? Result.ok("用户具有访问权限") : Result.fail("用户无访问权限");
     }
 
     /**
@@ -35,11 +37,12 @@ public class PermissionController {
      *
      * @param targetId 目标对象ID（如文章ID、合集ID等）
      * @param level 权限等级
-     * @return 返回操作是否成功
+     * @return 返回操作结果
      */
     @PostMapping("/setPermission")
-    public boolean setPermission(@RequestParam String targetId, @RequestParam String level) {
-        return permissionService.setPermission(targetId, level);
+    public Result setPermission(@RequestParam String targetId, @RequestParam String level) {
+        boolean success = permissionService.setPermission(targetId, level);
+        return success ? Result.ok("权限设置成功") : Result.fail("权限设置失败");
     }
 
     /**
@@ -49,8 +52,9 @@ public class PermissionController {
      * @return 返回目标对象的权限等级
      */
     @GetMapping("/getPermissionLevel")
-    public String getPermissionLevel(@RequestParam String targetId) {
-        return permissionService.getPermissionLevel(targetId);
+    public Result getPermissionLevel(@RequestParam String targetId) {
+        String level = permissionService.getPermissionLevel(targetId);
+        return Result.ok(level);
     }
 
     /**
@@ -58,11 +62,12 @@ public class PermissionController {
      *
      * @param userId 用户ID
      * @param newRole 新的权限角色
-     * @return 返回更新是否成功
+     * @return 返回更新结果
      */
     @PostMapping("/updateUserRole")
-    public boolean updateUserRole(@RequestParam String userId, @RequestParam String newRole) {
-        return permissionService.updateUserRole(userId, newRole);
+    public Result updateUserRole(@RequestParam String userId, @RequestParam String newRole) {
+        boolean success = permissionService.updateUserRole(userId, newRole);
+        return success ? Result.ok("用户角色更新成功") : Result.fail("用户角色更新失败");
     }
 
     /**
@@ -72,7 +77,8 @@ public class PermissionController {
      * @return 返回用户的权限角色
      */
     @GetMapping("/getUserRole")
-    public String getUserRole(@RequestParam String userId) {
-        return permissionService.getUserRole(userId);
+    public Result getUserRole(@RequestParam String userId) {
+        String role = permissionService.getUserRole(userId);
+        return Result.ok(role);
     }
 }

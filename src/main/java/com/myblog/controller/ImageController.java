@@ -18,7 +18,7 @@ import java.util.List;
  * @since 2024-12-28 18:30:16
  */
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/api/image")
 public class ImageController {
 
     @Autowired

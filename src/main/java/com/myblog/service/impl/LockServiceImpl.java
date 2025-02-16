@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.myblog.dao.LockDao;
 import com.myblog.dto.Result;
-import com.myblog.entity.Lock;
+import com.myblog.entity.EssayLock;
 import com.myblog.service.LockService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,23 +19,23 @@ import java.util.List;
  * @since 2024-12-28 18:30:29
  */
 @Service("lockService")
-public class LockServiceImpl extends ServiceImpl<LockDao, Lock> implements LockService {
+public class LockServiceImpl extends ServiceImpl<LockDao, EssayLock> implements LockService {
 
     @Override
     @Transactional
     public Result lockEssay(String essayId, String userId) {
         // 检查文章是否已被锁定
-        Lock existingLock = getOne(new QueryWrapper<Lock>().eq("essay_id", essayId));
-        if (existingLock != null) {
+        EssayLock existingEssayLock = getOne(new QueryWrapper<EssayLock>().eq("essay_id", essayId));
+        if (existingEssayLock != null) {
             return Result.fail("文章已被锁定");
         }
 
         // 创建新的锁
-        Lock newLock = new Lock()
+        EssayLock newEssayLock = new EssayLock()
                 .setEssayId(essayId)
                 .setUserId(userId)
                 .setLockTime(LocalDateTime.now());
-        save(newLock);
+        save(newEssayLock);
 
         return Result.ok("文章锁定成功");
     }
@@ -43,14 +43,14 @@ public class LockServiceImpl extends ServiceImpl<LockDao, Lock> implements LockS
     @Override
     @Transactional
     public Result unlockEssay(String essayId, String userId, boolean force) {
-        QueryWrapper<Lock> wrapper = new QueryWrapper<Lock>().eq("essay_id", essayId);
-        Lock lock = getOne(wrapper);
+        QueryWrapper<EssayLock> wrapper = new QueryWrapper<EssayLock>().eq("essay_id", essayId);
+        EssayLock essayLock = getOne(wrapper);
 
-        if (lock == null) {
+        if (essayLock == null) {
             return Result.fail("文章未被锁定");
         }
 
-        if (!force && !lock.getUserId().equals(userId)) {
+        if (!force && !essayLock.getUserId().equals(userId)) {
             return Result.fail("无权解锁此文章");
         }
 
@@ -60,9 +60,9 @@ public class LockServiceImpl extends ServiceImpl<LockDao, Lock> implements LockS
 
     @Override
     public Result checkLock(String essayId) {
-        Lock lock = getOne(new QueryWrapper<Lock>().eq("essay_id", essayId));
-        if (lock != null) {
-            return Result.ok(lock);
+        EssayLock essayLock = getOne(new QueryWrapper<EssayLock>().eq("essay_id", essayId));
+        if (essayLock != null) {
+            return Result.ok(essayLock);
         }
         return Result.fail("文章未被锁定");
     }
@@ -75,7 +75,7 @@ public class LockServiceImpl extends ServiceImpl<LockDao, Lock> implements LockS
 
     @Override
     public Result getAllLockedEssays() {
-        List<Lock> locks = list();
-        return Result.ok(locks);
+        List<EssayLock> essayLocks = list();
+        return Result.ok(essayLocks);
     }
 }

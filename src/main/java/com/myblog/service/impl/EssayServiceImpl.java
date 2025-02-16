@@ -5,7 +5,7 @@ import com.myblog.dao.EssayDao;
 import com.myblog.dto.EssayBriefDTO;
 import com.myblog.dto.Result;
 import com.myblog.entity.Essay;
-import com.myblog.entity.Lock;
+import com.myblog.entity.EssayLock;
 import com.myblog.service.EssayService;
 import com.myblog.service.LockService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +62,8 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
             return Result.fail("文章未被锁定，无法更新");
         }
 
-        Lock lock = (Lock) lockCheckResult.getData();
-        if (!lock.getUserId().equals(userId)) {
+        EssayLock essayLock = (EssayLock) lockCheckResult.getData();
+        if (!essayLock.getUserId().equals(userId)) {
             return Result.fail("您没有编辑权限");
         }
 
