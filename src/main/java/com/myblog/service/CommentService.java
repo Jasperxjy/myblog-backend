@@ -15,7 +15,7 @@ public interface CommentService extends IService<Comment> {
 
     List<Comment> getVisibleCommentsByEssayId(String essayId);
 
-    Comment addComment(Comment comment);
+    boolean addComment(Comment comment);
 
     boolean hideComment(String commentId);
 

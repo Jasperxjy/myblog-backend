@@ -76,7 +76,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             // 保存到数据库
             save(image);
 
-            return image;
+            return query().eq("file_name", fileName).one();
         } catch (IOException e) {
             logger.error("保存文件错误", e);
             return null;

@@ -45,12 +45,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
      */
     @CacheEvict(value = "essayComments", key = "#comment.essayId")
     @Override
-    public Comment addComment(Comment comment) {
+    public boolean addComment(Comment comment) {
         comment.setCommentTime(LocalDateTime.now())
                 .setCommentLikeNum(0)
                 .setCommentVisible("1");
-        save(comment);
-        return comment;
+
+        return save(comment);
     }
 
     /**

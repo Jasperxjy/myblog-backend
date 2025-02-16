@@ -50,8 +50,8 @@ public class EssayController {
                 .setEssayCollectionNum(0)
                 .setVersion(1)
                 .setStatus(1);
-        boolean savedEssay = essayService.save(essay);
-        return Result.ok(savedEssay);
+        essayService.save(essay);
+        return Result.ok(essayService.query().eq("essay_title", essay.getEssayTitle()).one());
     }
 
     /**

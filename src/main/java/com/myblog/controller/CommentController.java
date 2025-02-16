@@ -45,8 +45,8 @@ public class CommentController {
     @RequirePermission(UserRole.FRIEND)
     @PostMapping
     public Result addComment(@RequestBody Comment comment) {
-        Comment addedComment = commentService.addComment(comment);
-        return Result.ok(addedComment);
+        boolean addedComment = commentService.addComment(comment);
+        return addedComment ? Result.ok(comment) : Result.fail("评论失败");
     }
 
     /**

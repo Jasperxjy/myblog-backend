@@ -55,7 +55,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionDao, Collection
     @Override
     public Collection createCollection(Collection collection) {
         save(collection);
-        return collection;
+        return query().eq("collectionName", collection.getCollectionName()).one();
     }
 
     /**
