@@ -41,8 +41,12 @@ public class PermissionController {
      */
     @PostMapping("/setPermission")
     public Result setPermission(@RequestParam String targetId, @RequestParam String level) {
-        boolean success = permissionService.setPermission(targetId, level);
-        return success ? Result.ok("权限设置成功") : Result.fail("权限设置失败");
+        try {
+            String updatedLevel = permissionService.setPermission(targetId, level);
+            return Result.ok("权限设置成功，当前权限等级：" + updatedLevel);
+        } catch (Exception e) {
+            return Result.fail("权限设置失败：" + e.getMessage());
+        }
     }
 
     /**

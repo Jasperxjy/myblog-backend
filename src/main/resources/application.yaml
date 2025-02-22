@@ -3,17 +3,29 @@ image:
     path: /usr/blog/image
   default:
     album:
-      id: 1
+      id: d0d9e5f1e39843b09ed79fc435051d8d
 music:
   root:
     path: /usr/blog/music
 
 server:
   port: 8082
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: -1
+    connection-timeout: 120000  # 120秒
 jwt:
   secret: ghbsgasrfqwe_fsdfasdfasqwer12345sdf
-  expiration: 3600
+  expiration: 5400
 spring:
+  mvc:
+    async:
+      request-timeout: 120000  # 120秒
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8

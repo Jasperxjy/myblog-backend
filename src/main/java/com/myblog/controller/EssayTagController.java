@@ -44,9 +44,9 @@ public class EssayTagController {
     @RequirePermission(UserRole.ADMIN)
     @PostMapping("/add")
     public Result addTag(@RequestBody EssayTag essayTag) {
-        boolean success = essayTagService.addTag(essayTag);
-        if (success) {
-            return Result.ok();
+        EssayTag newtag = essayTagService.addTag(essayTag);
+        if (newtag != null) {
+            return Result.ok(newtag);
         } else {
             return Result.fail("新增标签失败");
         }

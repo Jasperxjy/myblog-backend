@@ -6,6 +6,8 @@ import com.myblog.dao.NoteDao;
 import com.myblog.dto.Result;
 import com.myblog.entity.Note;
 import com.myblog.service.NoteService;
+import com.myblog.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.List;
  */
 @Service("noteService")
 public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteService {
+    @Autowired
+    private UserService userService;
 
     @Override
     @CacheEvict(value = "notesByEssay", key = "#note.essayId")
@@ -29,9 +33,6 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
         if (note.getContent() == null || note.getContent().isEmpty()) {
             return Result.fail("批注内容不能为空");
         }
-        if (note.getPosition() == null || note.getPosition() < 0) {
-            return Result.fail("批注位置无效");
-        }
 
         // 设置创建时间
         note.setCreateTime(LocalDateTime.now());
@@ -39,7 +40,11 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
         // 保存批注
         boolean saved = save(note);
         if (saved) {
-            return Result.ok("批注添加成功");
+            // 重新查询以获取完整的 Note 对象（包括生成的主键）
+            Note savedNote = getById(note.getNoteId());
+            String userId = savedNote.getUserId();
+            savedNote.setUserId(userService.getById(userId).getUserName());
+            return Result.ok(savedNote);
         } else {
             return Result.fail("批注添加失败");
         }
@@ -102,6 +107,11 @@ public class NoteServiceImpl extends ServiceImpl<NoteDao, Note> implements NoteS
         queryWrapper.eq("essay_id", essayId)
                 .orderByAsc("position"); // 按位置排序
         List<Note> notes = list(queryWrapper);
+        // 将用户 ID 转换为用户名
+        for (Note note : notes) {
+            String userId = note.getUserId();
+            note.setUserId(userService.getById(userId).getUserName());
+        }
 
         return Result.ok(notes);
     }

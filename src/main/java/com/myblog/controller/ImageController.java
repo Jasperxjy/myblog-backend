@@ -52,9 +52,11 @@ public class ImageController {
                               @RequestParam(required = false) String essayId,
                               @RequestParam(required = false) String albumId,
                               @RequestParam(required = false) String description) {
+
         Image image = imageService.uploadImage(file, essayId, albumId, description);
         return image != null ? Result.ok(image) : Result.fail("图片上传失败");
     }
+
 
     /**
      * 获取文章的所有图片

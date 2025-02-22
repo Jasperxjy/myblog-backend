@@ -47,10 +47,14 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     }
 
     @Override
+    @CacheEvict(value = {"Album_images","Essay_images","image"},allEntries = true)
     public Image uploadImage(MultipartFile file, String essayId, String albumId, String description) {
         try {
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            String filePath = Paths.get(imageRootPath, "image", fileName).toString();
+            String originalFilename = file.getOriginalFilename();
+            String safeFilename = sanitizeFilename(originalFilename);
+            String uniqueId = UUID.randomUUID().toString().substring(0, 8); // 使用UUID的前8个字符
+            String savefileName =  uniqueId+"_" + safeFilename;
+            String filePath = Paths.get(imageRootPath, "image", savefileName).toString();
 
             // 确保目录存在
             Files.createDirectories(Paths.get(imageRootPath, "image"));
@@ -59,13 +63,13 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             file.transferTo(new File(filePath));
 
             // 生成缩略图
-            String thumbnailFileName = "thumbnail_" + fileName;
+            String thumbnailFileName = "thumbnail_" + savefileName;
             String thumbnailPath = Paths.get(imageRootPath, "image", thumbnailFileName).toString();
             ImageUtils.generateThumbnail(filePath, thumbnailPath, 300); // 假设缩略图最大边长为300像素
 
             // 创建Image对象
             Image image = new Image()
-                    .setFileName(fileName)
+                    .setFileName(originalFilename)
                     .setFilePath(filePath)
                     .setEssayId(essayId)
                     .setAlbumId(essayId == null ? (albumId != null ? albumId : defaultAlbumId) : null)
@@ -76,11 +80,19 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             // 保存到数据库
             save(image);
 
-            return query().eq("file_name", fileName).one();
+            return query().eq("file_name", originalFilename).one();
         } catch (IOException e) {
             logger.error("保存文件错误", e);
             return null;
         }
+    }
+
+    private String sanitizeFilename(String filename) {
+        if (filename == null) {
+            return "unnamed";
+        }
+        // 移除路径分隔符和其他潜在的危险字符
+        return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 
     @Cacheable(value = "Essay_images",key = "#essayId",unless = "#result == null")
@@ -90,6 +102,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     }
 
     @Override
+    @CacheEvict(value = {"Album_images","Essay_images","image"},allEntries = true)
     public boolean deleteImage(String imageId) {
         Image image = getById(imageId);
         if (image != null) {
@@ -102,8 +115,10 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
                     Files.deleteIfExists(Paths.get(image.getPreviewPath()));
                 }
 
+
                 // 从数据库中删除记录
                 return removeById(imageId);
+
             } catch (IOException e) {
                 logger.error("删除图片错误", e);
                 return false;
@@ -113,18 +128,9 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     }
 
     @Override
+    @CacheEvict(value = {"Album_images"},allEntries = true)
     public Image updateImage(Image image) {
         if (updateById(image)) {
-            // 清除相关缓存
-            clearImageCache(image.getImageId());
-            if (image.getEssayId() != null) {
-                clearEssayImagesCache(image.getEssayId());
-            }
-            if (image.getAlbumId() != null) {
-                clearAlbumImagesCache(image.getAlbumId());
-            } else {
-                clearUncategorizedImagesCache();
-            }
             return getById(image.getImageId());
         }
         return null;
@@ -142,6 +148,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     }
 
     @Override
+    @CacheEvict(value = {"Album_images","image"}, key = "#imageId",allEntries = true)
     public boolean addImageToAlbum(String imageId, String albumId) {
         Image image = getById(imageId);
         if (image != null) {
@@ -149,9 +156,6 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             image.setAlbumId(albumId);
             boolean updated = updateById(image);
             if (updated) {
-                // 清除相关缓存
-                clearImageCache(imageId);
-                clearAlbumImagesCache(albumId);
                 if (oldAlbumId != null) {
                     clearAlbumImagesCache(oldAlbumId);
                 } else {
@@ -164,33 +168,23 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
     }
 
     @Override
+    @CacheEvict(value = {"Album_images","image"}, key = "#imageId",allEntries = true)
     public boolean removeImageFromAlbum(String imageId, String albumId) {
         Image image = getById(imageId);
         if (image != null && albumId.equals(image.getAlbumId())) {
             image.setAlbumId(null);
-            boolean updated = updateById(image);
-            if (updated) {
-                // 清除相关缓存
-                clearImageCache(imageId);
-                clearAlbumImagesCache(albumId);
-                clearUncategorizedImagesCache();
-            }
-            return updated;
+            return updateById(image);
         }
         return false;
     }
-    // 新增的缓存清除方法
-    @CacheEvict(value = "image", key = "#imageId")
-    public void clearImageCache(String imageId) {
-        // 方法体可以为空，注解会处理缓存的清除
-    }
 
-    @CacheEvict(value = "Essay_images", key = "#essayId")
+
+    @CacheEvict(value = "Essay_images",allEntries = true)
     public void clearEssayImagesCache(String essayId) {
         // 方法体可以为空，注解会处理缓存的清除
     }
 
-    @CacheEvict(value = "Album_images", key = "#albumId")
+    @CacheEvict(value = "Album_images", allEntries = true)
     public void clearAlbumImagesCache(String albumId) {
         // 方法体可以为空，注解会处理缓存的清除
     }

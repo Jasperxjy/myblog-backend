@@ -1,6 +1,7 @@
 package com.myblog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.myblog.dto.CommentDTO;
 import com.myblog.entity.Comment;
 
 import java.util.List;
@@ -13,11 +14,11 @@ import java.util.List;
  */
 public interface CommentService extends IService<Comment> {
 
-    List<Comment> getVisibleCommentsByEssayId(String essayId);
+    List<CommentDTO> getVisibleCommentsByEssayId(String essayId);
 
     boolean addComment(Comment comment);
 
-    boolean hideComment(String commentId);
+    Comment hideComment(String commentId);
 
     Comment updateCommentLikes(String commentId);
 }

@@ -112,7 +112,7 @@ public class AlbumController {
      * @return 操作结果的Result对象
      */
     @RequirePermission(UserRole.ADMIN)
-    @PostMapping("/merge")
+    @GetMapping("/merge")
     public Result mergeAlbums(@RequestParam String sourceId, @RequestParam String targetId) {
         boolean merged = albumService.mergeAlbums(sourceId, targetId);
         if (merged) {

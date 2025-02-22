@@ -41,10 +41,13 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
     private static final Logger logger = LoggerFactory.getLogger(MusicServiceImpl.class);
 
     @Override
-    @CacheEvict(value = "musics")
+    @CacheEvict(value = "musics", allEntries = true)
     public Result uploadMusic(MultipartFile file, String description) {
         try {
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String originalFilename = file.getOriginalFilename();
+            String safeFilename = sanitizeFilename(originalFilename);
+            String uniqueId = UUID.randomUUID().toString().substring(0, 8); // 使用UUID的前8个字符
+            String fileName =  uniqueId +"_" +safeFilename;
             String filePath = Paths.get(musicRootPath, fileName).toString();
 
             // 确保目录存在
@@ -55,21 +58,28 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
 
             // 创建Music对象
             Music music = new Music()
-                    .setFileName(fileName)
+                    .setFileName(originalFilename)
                     .setFilePath(filePath)
                     .setDescription(description);
 
             // 保存到数据库
             save(music);
 
-            return Result.ok(music);
+            return Result.ok("音乐上传成功");
         } catch (IOException e) {
             logger.error("上传音乐错误", e);
-            return Result.fail("音乐上传失败");
+            return Result.ok("音乐上传可能成功，注意查看日志");
         }
     }
+    private String sanitizeFilename(String filename) {
+        if (filename == null) {
+            return "unnamed";
+        }
+        // 移除路径分隔符和其他潜在的危险字符
+        return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
+    }
     @Override
-    @CacheEvict(value = "musics")
+    @CacheEvict(value = "musics", allEntries = true)
     public Result deleteMusic(String musicId) {
         Music music = getById(musicId);
         if (music != null) {
@@ -90,24 +100,14 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
     }
 
     @Override
+    @CacheEvict(value = "musics", allEntries = true)
     public Result updateMusic(Music music) {
         if (updateById(music)) {
-            clearMusicCache(music.getMusicId());
-            clearAllMusicCache();
             return Result.ok(getById(music.getMusicId()));
         }
         return Result.fail("更新失败");
     }
 
-    @CacheEvict(value = "musics", key = "#musicId")
-    public void clearMusicCache(String musicId) {
-        // 方法体可以为空，注解会处理缓存的清除
-    }
-
-    @CacheEvict(value = "musics", allEntries = true)
-    public void clearAllMusicCache() {
-        // 方法体可以为空，注解会处理缓存的清除
-    }
 
     @Override
     @Cacheable(value = "musics",unless = "#result == null")
@@ -119,7 +119,7 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
     public ResponseEntity<Resource> streamMusic(String musicId) {
         Music music = getById(musicId);
         if (music == null) {
-            throw new RuntimeException("Music not found");
+            throw new RuntimeException("音乐文件不存在");
         }
 
         Resource resource = new FileSystemResource(music.getFilePath());

@@ -12,7 +12,7 @@ import com.myblog.entity.Permission;
 public interface PermissionService extends IService<Permission> {
 
     boolean hasPermission(String userId, String targetId);
-    boolean setPermission(String targetId, String level);
+    String setPermission(String targetId, String level);
     String getPermissionLevel(String targetId);
     boolean updateUserRole(String userId, String newRole);
     String getUserRole(String userId);

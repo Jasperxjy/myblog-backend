@@ -37,7 +37,5 @@ public class Note implements Serializable{
     private LocalDateTime createTime;
     //所属文章id
     private String essayId;
-
-
-    }
+}
 

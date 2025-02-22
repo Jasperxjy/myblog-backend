@@ -17,8 +17,8 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "collection",autoResultMap = true)
-public class Collection implements Serializable{
+@TableName(value = "collection", autoResultMap = true)
+public class Collection implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -30,6 +30,5 @@ public class Collection implements Serializable{
     //合集内容摘要
     private String collectionAbstract;
 
-
-    }
+}
 

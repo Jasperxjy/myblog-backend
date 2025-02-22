@@ -19,8 +19,8 @@ public interface EssayService extends IService<Essay> {
 
     Result updateEssayWithLock(String id, Essay essay, String userId);
 
-    List<EssayBriefDTO> listAllEssayBriefs();
-
     Result incrementLikeCount(String id);
+
+    List<EssayBriefDTO> listEssayBriefs(String collectionId);
 }
 

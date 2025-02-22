@@ -7,6 +7,7 @@ import com.myblog.entity.Essay;
 import com.myblog.service.EssayService;
 import com.myblog.service.LockService;
 import com.myblog.utility.UserRole;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -42,16 +43,18 @@ public class EssayController {
     @CacheEvict(value = "essayBriefs", allEntries = true)
     @RequirePermission(UserRole.ADMIN)
     @PostMapping
-    public Result createEssay(@RequestBody Essay essay) {
+    public Result createEssay(@RequestBody Essay essay, HttpSession session) {
         essay.setEssayAddTime(LocalDateTime.now())
                 .setEssayLastChangeTime(LocalDateTime.now())
                 .setEssayLikeNum(0)
                 .setEssayViewNum(0)
                 .setEssayCollectionNum(0)
-                .setVersion(1)
+                .setVersion(0)
                 .setStatus(1);
         essayService.save(essay);
-        return Result.ok(essayService.query().eq("essay_title", essay.getEssayTitle()).one());
+        Essay newEssay =essayService.getById(essay.getEssayId());
+        lockService.lockEssay(newEssay.getEssayId(),newEssay.getUserId());
+        return Result.ok(newEssay);
     }
 
     /**
@@ -62,7 +65,7 @@ public class EssayController {
      */
     @RequirePermission(UserRole.ADMIN)
     @GetMapping("/edit/{id}")
-    @Cacheable(value = "essays", key = "#id")
+    @Cacheable(value = "essays", key = "#id",unless = "#result.success == false")
     public Result getEssay(@PathVariable String id) {
         Essay essay = essayService.getById(id);
         if (essay != null) {
@@ -80,23 +83,24 @@ public class EssayController {
      */
     @RequirePermission()
     @GetMapping("/view/{id}")
-    @Cacheable(value = "essays", key = "#id")
     public Result getLatestEssay(@PathVariable String id) {
         return essayService.getEssayWithLockCheck(id);
     }
 
     /**
-     * 获取所有文章的缩略视图，用于全部文章列表的展示
+     * 获取文章的缩略视图，可以获取所有文章或特定合集的文章
      *
-     * @return 包含所有文章列表的Result对象
+     * @param collectionId 可选参数，合集ID。如果提供，则获取该合集的文章；如果不提供，则获取所有未归属合集的文章
+     * @return 包含文章缩略信息列表的Result对象
      */
-    @Cacheable(value = "essayBriefs",unless = "#result == null")
+    @Cacheable(value = "essayBriefs", key = "#collectionId != null ? #collectionId : 'free'", unless = "#result == null")
     @RequirePermission()
-    @GetMapping
-    public Result getAllEssays() {
-        List<EssayBriefDTO> essayBriefs = essayService.listAllEssayBriefs();
+    @GetMapping("/brief")
+    public Result getEssayBriefs(@RequestParam(required = false) String collectionId) {
+        List<EssayBriefDTO> essayBriefs = essayService.listEssayBriefs(collectionId);
         return Result.ok(essayBriefs);
     }
+
 
     /**
      * 更新指定ID的文章的其他内容，包括合集、类型、状态等，不上锁
@@ -127,7 +131,7 @@ public class EssayController {
      * @param essay 包含更新信息的文章对象
      * @return 包含更新后的文章信息的Result对象
      */
-    @RequirePermission(UserRole.ADMIN)
+    @RequirePermission(UserRole.CLOSE_FRIEND)
     @PutMapping("/{id}/context")
     public Result updateEssayContext(@PathVariable String id, @RequestBody Essay essay, @RequestAttribute("userId") String userId) {
         return essayService.updateEssayWithLock(id, essay, userId);
@@ -142,7 +146,7 @@ public class EssayController {
      * @return 包含锁定信息的Result对象
      */
     @CacheEvict(value = "essays", key = "#id")
-    @RequirePermission(UserRole.ADMIN)
+    @RequirePermission(UserRole.CLOSE_FRIEND)
     @PostMapping("/{id}/edit")
     public Result startEditEssay(@PathVariable String id, @RequestParam String userId) {
         Essay existingEssay = essayService.getById(id);
@@ -160,7 +164,7 @@ public class EssayController {
      * @return 操作结果的Result对象
      */
     @CacheEvict(value = "essayBriefs", allEntries = true)
-    @RequirePermission(UserRole.ADMIN)
+    @RequirePermission(UserRole.CLOSE_FRIEND)
     @PostMapping("/{id}/end-edit")
     public Result endEditEssay(@PathVariable String id, @RequestParam String userId) {
         Essay existingEssay = essayService.getById(id);

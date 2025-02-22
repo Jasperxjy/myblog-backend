@@ -9,6 +9,7 @@ import com.myblog.entity.EssayLock;
 import com.myblog.service.EssayService;
 import com.myblog.service.LockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,17 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
     @Autowired
     private LockService lockService;
 
+    private EssayBriefDTO convertToEssayBriefDTO(Essay essay) {
+        EssayBriefDTO brief = new EssayBriefDTO();
+        brief.setEssayId(essay.getEssayId());
+        brief.setEssayTitle(essay.getEssayTitle());
+        brief.setClassId(essay.getClassId());
+        brief.setStatus(essay.getStatus());
+        return brief;
+    }
+
     @Override
+    @CachePut(value = "essays", key = "#id",unless = "#result.success == false")
     public Result getEssayWithLockCheck(String id) {
         Essay essay = this.getById(id);
         if (essay == null) {
@@ -81,18 +92,20 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
 
 
     @Override
-    public List<EssayBriefDTO> listAllEssayBriefs() {
+    public List<EssayBriefDTO> listEssayBriefs(String collectionId) {
         return this.list().stream()
-                .map(essay -> {
-                    EssayBriefDTO brief = new EssayBriefDTO();
-                    brief.setEssayId(essay.getEssayId());
-                    brief.setEssayTitle(essay.getEssayTitle());
-                    brief.setClassId(essay.getClassId());
-                    return brief;
+                .filter(essay -> {
+                    if (collectionId == null) {
+                        // 如果collectionId为null，返回所有未归属合集的文章
+                        return essay.getClassId() == null || essay.getClassId().isEmpty();
+                    } else {
+                        // 否则返回指定合集的文章
+                        return collectionId.equals(essay.getClassId());
+                    }
                 })
+                .map(this::convertToEssayBriefDTO)
                 .collect(Collectors.toList());
     }
-
 
     @Override
     @Transactional
@@ -113,5 +126,7 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
             return Result.fail("点赞失败");
         }
     }
+
+
 }
 

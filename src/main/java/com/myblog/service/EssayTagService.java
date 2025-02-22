@@ -15,6 +15,6 @@ public interface EssayTagService extends IService<EssayTag> {
 
     List<EssayTag> getAllTags();
 
-    boolean addTag(EssayTag essayTag);
+    EssayTag addTag(EssayTag essayTag);
 }
 

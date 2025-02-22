@@ -1,6 +1,7 @@
 package com.myblog.controller;
 
 import com.myblog.annotation.RequirePermission;
+import com.myblog.dto.CommentDTO;
 import com.myblog.entity.Comment;
 import com.myblog.service.CommentService;
 import com.myblog.dto.Result;
@@ -32,7 +33,7 @@ public class CommentController {
     @RequirePermission()
     @GetMapping("/essay/{essayId}")
     public Result getCommentsByEssayId(@PathVariable String essayId) {
-        List<Comment> comments = commentService.getVisibleCommentsByEssayId(essayId);
+        List<CommentDTO> comments = commentService.getVisibleCommentsByEssayId(essayId);
         return Result.ok(comments);
     }
 
@@ -58,9 +59,9 @@ public class CommentController {
     @RequirePermission(UserRole.FRIEND)
     @DeleteMapping("/{commentId}")
     public Result deleteComment(@PathVariable String commentId) {
-        boolean success = commentService.hideComment(commentId);
-        if (success) {
-            return Result.ok();
+        Comment c = commentService.hideComment(commentId);
+        if (c != null) {
+            return Result.ok(c);
         } else {
             return Result.fail("评论不存在或删除失败");
         }

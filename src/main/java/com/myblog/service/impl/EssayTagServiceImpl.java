@@ -23,8 +23,9 @@ public class EssayTagServiceImpl extends ServiceImpl<EssayTagDao, EssayTag> impl
     }
 
     @Override
-    public boolean addTag(EssayTag essayTag) {
-        return this.save(essayTag);
+    public EssayTag addTag(EssayTag essayTag) {
+        save(essayTag);
+        return getById(essayTag.getEssayTagId());
     }
 }
 
