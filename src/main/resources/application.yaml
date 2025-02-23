@@ -42,7 +42,7 @@ spring:
   data:
     redis:
       host: localhost
-      password: 264979
+      password: jasperpasswordforredis264979
       port: 6379
       timeout: 2000
 
