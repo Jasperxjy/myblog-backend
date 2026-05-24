@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static com.myblog.utility.ConfigConstans.*;
 
@@ -33,6 +35,18 @@ public class EssayController {
     private EssayService essayService;
     @Autowired
     private LockService lockService;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    /**
+     * 手动清除 essayBriefs 缓存（兜底：@CacheEvict allEntries 在 Redis 上偶发失效）
+     */
+    private void clearEssayBriefsCache() {
+        Set<String> keys = redisTemplate.keys("essayBriefs:*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
 
     /**
      * 创建新文章
@@ -44,6 +58,7 @@ public class EssayController {
     @RequirePermission(UserRole.ADMIN)
     @PostMapping
     public Result createEssay(@RequestBody Essay essay, HttpSession session) {
+        clearEssayBriefsCache();
         essay.setEssayAddTime(LocalDateTime.now())
                 .setEssayLastChangeTime(LocalDateTime.now())
                 .setEssayLikeNum(0)
@@ -171,6 +186,7 @@ public class EssayController {
     @RequirePermission(UserRole.CLOSE_FRIEND)
     @PostMapping("/{id}/end-edit")
     public Result endEditEssay(@PathVariable String id, @RequestParam String userId) {
+        clearEssayBriefsCache();
         Essay existingEssay = essayService.getById(id);
         if (existingEssay != null) {
             existingEssay
@@ -202,11 +218,13 @@ public class EssayController {
      * @param id 要删除的文章ID
      * @return 包含操作结果的Result对象，如果删除成功返回成功信息，否则返回失败信息
      */
+    @CacheEvict(value = "essayBriefs", allEntries = true)
     @RequirePermission(UserRole.ADMIN)
     @DeleteMapping("/{id}/del")
     public Result deleteEssay(@PathVariable String id) {
         boolean removed = essayService.update().set("status", ESSAY_STATUS_DEL).eq("essay_id", id).update();
         if (removed) {
+            clearEssayBriefsCache();
             return Result.ok();
         } else {
             return Result.fail("文章不存在或删除失败");
