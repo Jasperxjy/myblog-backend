@@ -84,7 +84,7 @@ public class TipController {
     @PutMapping("/{tipId}/update")
     public Result updateTip(@PathVariable String tipId, @RequestBody Tip tip) {
         tip.setTipId(tipId);
-        tip.setTime(LocalDateTime.now()); // 更新修改时间
+        // time 字段保持创建时间，不随更新改变
         Tip updatedTip = tipService.updateTip(tip);
         if (updatedTip != null) {
             return Result.ok(updatedTip);

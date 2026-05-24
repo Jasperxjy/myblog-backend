@@ -50,8 +50,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
         Set<String> userIds = comments.stream()
                 .map(Comment::getUserId)
                 .collect(Collectors.toSet());
-        Map<String, User> userMap = userService.listByIds(userIds).stream()
-                .collect(Collectors.toMap(User::getUserId, u -> u));
+        Map<String, User> userMap = userIds.isEmpty()
+                ? java.util.Collections.emptyMap()
+                : userService.listByIds(userIds).stream()
+                        .collect(Collectors.toMap(User::getUserId, u -> u));
 
         return comments.stream()
                 .map(c -> convertToDTO(c, userMap))

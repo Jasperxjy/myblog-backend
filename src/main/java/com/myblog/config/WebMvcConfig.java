@@ -25,6 +25,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOriginPatterns(
                         "https://www.jasper-xjy.fun",
+                        "https://jasper-xjy.fun",
                         "http://localhost:*",
                         "http://127.0.0.1:*"
                 )
