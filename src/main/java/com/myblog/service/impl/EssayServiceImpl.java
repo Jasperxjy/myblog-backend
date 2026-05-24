@@ -93,16 +93,16 @@ public class EssayServiceImpl extends ServiceImpl<EssayDao, Essay> implements Es
 
     @Override
     public List<EssayBriefDTO> listEssayBriefs(String collectionId) {
-        return this.list().stream()
-                .filter(essay -> {
-                    if (collectionId == null) {
-                        // 如果collectionId为null，返回所有未归属合集的文章
-                        return essay.getClassId() == null || essay.getClassId().isEmpty();
-                    } else {
-                        // 否则返回指定合集的文章
-                        return collectionId.equals(essay.getClassId());
-                    }
-                })
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Essay> queryWrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        if (collectionId == null) {
+            // 返回所有未归属合集的文章（class_id 为 null 或空字符串）
+            queryWrapper.isNull(Essay::getClassId).or().eq(Essay::getClassId, "");
+        } else {
+            // 返回指定合集的文章
+            queryWrapper.eq(Essay::getClassId, collectionId);
+        }
+        return this.list(queryWrapper).stream()
                 .map(this::convertToEssayBriefDTO)
                 .collect(Collectors.toList());
     }
