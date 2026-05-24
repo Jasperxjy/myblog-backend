@@ -30,7 +30,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8
     username: root
-    password: bl.264979
+    password: ${MYSQL_PASSWORD:bl.264979}
   jackson:
     time-zone: Asia/Shanghai
     date-format: yyyy-MM-dd HH:mm:ss
@@ -42,7 +42,7 @@ spring:
   data:
     redis:
       host: localhost
-      password: jasperpasswordforredis264979
+      password: ${REDIS_PASSWORD:jasperpasswordforredis264979}
       port: 6379
       timeout: 2000
 
