@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.myblog.utility.AesTypeHandler;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -32,6 +33,7 @@ public class User implements Serializable {
     @TableField(value = "user_name",typeHandler = AesTypeHandler.class)
     private String userName;
     //用户密码
+    @JsonIgnore
     @TableField(value = "user_password",typeHandler = AesTypeHandler.class)
     private String userPassword;
     //用户注册时间
