@@ -33,3 +33,10 @@ build/
 .vscode/
 /logs/app.log
 myblog.env
+*.jar
+*.war
+*.log
+logs/
+.env*
+application-prod.yaml
+application-dev.yaml

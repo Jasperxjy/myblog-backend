@@ -56,6 +56,13 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             String savefileName =  uniqueId+"_" + safeFilename;
             String filePath = Paths.get(imageRootPath, "image", savefileName).toString();
 
+            // MIME类型校验
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                logger.error("上传文件类型错误: {}", contentType);
+                return null;
+            }
+
             // 确保目录存在
             Files.createDirectories(Paths.get(imageRootPath, "image"));
 
@@ -80,7 +87,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageDao, Image> implements Im
             // 保存到数据库
             save(image);
 
-            return query().eq("file_name", originalFilename).one();
+            return image;
         } catch (IOException e) {
             logger.error("保存文件错误", e);
             return null;

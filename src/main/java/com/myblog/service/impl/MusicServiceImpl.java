@@ -50,6 +50,13 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
             String fileName =  uniqueId +"_" +safeFilename;
             String filePath = Paths.get(musicRootPath, fileName).toString();
 
+            // MIME类型校验
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("audio/")) {
+                logger.error("上传文件类型错误: {}", contentType);
+                return Result.fail("只允许上传音频文件");
+            }
+
             // 确保目录存在
             Files.createDirectories(Paths.get(musicRootPath));
 
@@ -68,7 +75,7 @@ public class MusicServiceImpl extends ServiceImpl<MusicDao, Music> implements Mu
             return Result.ok("音乐上传成功");
         } catch (IOException e) {
             logger.error("上传音乐错误", e);
-            return Result.ok("音乐上传可能成功，注意查看日志");
+            return Result.fail("音乐上传失败: " + e.getMessage());
         }
     }
     private String sanitizeFilename(String filename) {

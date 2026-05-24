@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.myblog.dao.CommentDao;
 import com.myblog.dto.CommentDTO;
 import com.myblog.entity.Comment;
+import com.myblog.entity.User;
 import com.myblog.service.CommentService;
 import com.myblog.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,16 +45,27 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
                 .eq(Comment::getCommentVisible, "1")
                 .orderByDesc(Comment::getCommentTime);
         List<Comment> comments = list(queryWrapper);
-        return comments.stream().map(this::convertToDTO).collect(Collectors.toList());
+
+        // 批量查询用户，避免N+1
+        Set<String> userIds = comments.stream()
+                .map(Comment::getUserId)
+                .collect(Collectors.toSet());
+        Map<String, User> userMap = userService.listByIds(userIds).stream()
+                .collect(Collectors.toMap(User::getUserId, u -> u));
+
+        return comments.stream()
+                .map(c -> convertToDTO(c, userMap))
+                .collect(Collectors.toList());
     }
 
-    private CommentDTO convertToDTO(Comment comment) {
+    private CommentDTO convertToDTO(Comment comment, Map<String, User> userMap) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getCommentId());
         dto.setEssayId(comment.getEssayId());
         dto.setContent(comment.getContent());
         dto.setSenderUserId(comment.getUserId());
-        dto.setSenderUsername(userService.getById(comment.getUserId()).getUserName());
+        User user = userMap.get(comment.getUserId());
+        dto.setSenderUsername(user != null ? user.getUserName() : null);
         dto.setCommentTime(comment.getCommentTime());
         dto.setCommentLikeNum(comment.getCommentLikeNum());
         dto.setReplyCommentId(comment.getCommentFatherId());
