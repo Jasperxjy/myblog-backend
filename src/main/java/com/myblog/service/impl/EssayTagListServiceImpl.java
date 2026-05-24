@@ -81,6 +81,11 @@ public class EssayTagListServiceImpl extends ServiceImpl<EssayTagListDao, EssayT
                 .map(EssayTagList::getEssayTagId)
                 .collect(Collectors.toList());
 
+        // 如果文章没有标签，直接返回空列表，避免生成非法 SQL (IN ())
+        if (tagIds.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+
         // 通过标签ID列表获取完整的标签信息
         return essayTagService.listByIds(tagIds);
     }

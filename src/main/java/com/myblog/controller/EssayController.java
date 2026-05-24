@@ -118,7 +118,11 @@ public class EssayController {
             essay.setEssayId(id)
                     .setEssayLastChangeTime(LocalDateTime.now());
             boolean updatedEssay = essayService.updateById(essay);
-            return Result.ok(updatedEssay);
+            if (updatedEssay) {
+                return Result.ok("更新成功");
+            } else {
+                return Result.fail("更新失败");
+            }
         } else {
             return Result.fail("文章不存在");
         }
